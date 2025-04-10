@@ -1,5 +1,6 @@
 const languages = [
   { key: 'en', name: 'English' },
+  { key: 'ru', name: 'Русский' },
   { key: 'zh', name: '中文' }
 ];
 
