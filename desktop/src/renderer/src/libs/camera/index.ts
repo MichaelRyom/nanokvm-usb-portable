@@ -17,8 +17,7 @@ class Camera {
           deviceId: { exact: id || this.id },
           width: { ideal: width || this.width },
           height: { ideal: height || this.height }
-        },
-        audio: true
+        }
       }
 
       this.stream = await navigator.mediaDevices.getUserMedia(constraints)

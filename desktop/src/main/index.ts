@@ -1,6 +1,6 @@
 import { join } from 'path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell, session } from 'electron'
 import log from 'electron-log/main'
 
 import icon from '../../resources/icon.png?asset'
@@ -26,6 +26,7 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
     mainWindow.maximize()
+    //mainWindow.webContents.openDevTools()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -42,6 +43,15 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.sipeed.usbkvm')
+
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
+    console.log('Permission requested:', permission)
+    if (permission === 'media') {
+      callback(true)
+    } else {
+      callback(false)
+    }
+  })
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
