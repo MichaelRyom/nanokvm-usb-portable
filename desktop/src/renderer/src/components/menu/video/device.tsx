@@ -18,10 +18,19 @@ export const Device = (): ReactElement => {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    navigator.mediaDevices.enumerateDevices().then((deviceInfo) => {
+    ;(async () => {
+      try {
+        // Prompt for camera access to unlock device labels
+        await navigator.mediaDevices.getUserMedia({ video: true })
+      } catch (err) {
+        console.error('Camera permission denied:', err)
+        return
+      }
+
+      const deviceInfo = await navigator.mediaDevices.enumerateDevices()
       const videoDevices = deviceInfo.filter((device) => device.kind === 'videoinput')
       setDevices(videoDevices)
-    })
+    })()
   }, [])
 
   async function selectDevice(deviceId: string): Promise<void> {
@@ -35,6 +44,13 @@ export const Device = (): ReactElement => {
       const video = document.getElementById('video') as HTMLVideoElement
       if (!video) return
       video.srcObject = camera.getStream()
+
+      // Start playback explicitly
+      try {
+        await video.play()
+      } catch (err) {
+        console.error('video.play() failed:', err)
+      }
 
       setVideoDeviceId(deviceId)
       storage.setVideoDevice(deviceId)

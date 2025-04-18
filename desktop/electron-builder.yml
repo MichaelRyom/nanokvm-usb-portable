@@ -1,7 +1,9 @@
 appId: com.sipeed.usbkvm
 productName: NanoKVM-USB
+
 directories:
   buildResources: build
+
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -9,30 +11,39 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+
 asarUnpack:
   - resources/**
+
 win:
   executableName: NanoKVM-USB
+
 nsis:
-  onClick: false
+  oneClick: false                            # show installer wizard
+  perMachine: true                           # install for all users
   allowToChangeInstallationDirectory: true
+  allowElevation: true                       # request elevation when needed
   artifactName: ${productName}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+    NSCameraUsageDescription: Application requests access to the device's camera.
+    NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   hardenedRuntime: true
   gatekeeperAssess: false
   notarize: false
+
 dmg:
   artifactName: ${productName}-${version}.${ext}
   sign: true
+
 linux:
   target:
     - AppImage
@@ -40,13 +51,18 @@ linux:
     - deb
   maintainer: sipeed.com
   category: Utility
+
 appImage:
   artifactName: ${productName}-${version}.${ext}
+
 npmRebuild: false
+
 afterSign: "./notarize.js"
+
 publish:
   provider: github
   owner: sipeed
   repo: NanoKVM-USB
+
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
