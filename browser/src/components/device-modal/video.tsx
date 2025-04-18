@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'react';
-import { Popover } from 'antd';
-import clsx from 'clsx';
+import { Select } from 'antd';
 import { useAtom, useAtomValue } from 'jotai';
-import { VideoIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { resolutionAtom, videoDeviceIdAtom } from '@/jotai/device.ts';
+import { resolutionAtom, videoDeviceIdAtom, videoStateAtom } from '@/jotai/device.ts';
 import { camera } from '@/libs/camera';
 import * as storage from '@/libs/storage';
 import type { MediaDevice } from '@/types';
 
-export const Device = () => {
+type VideoProps = {
+  setErrMsg: (msg: string) => void;
+};
+
+export const Video = ({ setErrMsg }: VideoProps) => {
   const { t } = useTranslation();
 
   const resolution = useAtomValue(resolutionAtom);
   const [videoDeviceId, setVideoDeviceId] = useAtom(videoDeviceIdAtom);
+  const [videoState, setVideoState] = useAtom(videoStateAtom);
 
   const [devices, setDevices] = useState<MediaDevice[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getDevices();
@@ -51,50 +53,57 @@ export const Device = () => {
       setDevices(mediaDevices);
     } catch (err) {
       console.log(err);
+      setErrMsg(t('camera.failed'));
     }
   }
 
-  async function selectDevice(device: MediaDevice) {
-    if (isLoading) return;
-    setIsLoading(true);
+  async function selectVideo(videoId: string) {
+    if (videoState === 'connecting') return;
+
+    if (!videoId) {
+      setVideoDeviceId('');
+      return;
+    }
+
+    const device = devices.find((d) => d.videoId === videoId);
+    if (!device) {
+      return;
+    }
+
+    setVideoState('connecting');
+    setErrMsg('');
 
     try {
-      await camera.open(device.videoId, resolution.width, resolution.height, device.audioId);
-
-      const video = document.getElementById('video') as HTMLVideoElement;
-      if (!video) return;
-      video.srcObject = camera.getStream();
-
-      setVideoDeviceId(device.videoId);
-      storage.setVideoDevice(device.videoId);
-    } finally {
-      setIsLoading(false);
+      await camera.open(videoId, resolution.width, resolution.height, device.audioId);
+    } catch (err) {
+      console.log(err);
+      setErrMsg(t('camera.failed'));
     }
+
+    const video = document.getElementById('video') as HTMLVideoElement;
+    if (!video) return;
+
+    video.srcObject = camera.getStream();
+
+    setVideoState('connected');
+    setVideoDeviceId(videoId);
+    storage.setVideoDevice(videoId);
   }
 
-  const content = (
-    <>
-      {devices.map((device) => (
-        <div
-          key={device.videoId}
-          className={clsx(
-            'cursor-pointer rounded px-2 py-1.5 hover:bg-neutral-700/60',
-            device.videoId === videoDeviceId ? 'text-blue-500' : 'text-white'
-          )}
-          onClick={() => selectDevice(device)}
-        >
-          {device.videoName}
-        </div>
-      ))}
-    </>
-  );
-
   return (
-    <Popover content={content} placement="rightTop">
-      <div className="flex h-[30px] cursor-pointer items-center space-x-2 rounded px-3 text-neutral-300 hover:bg-neutral-700">
-        <VideoIcon size={18} />
-        <span className="select-none text-sm">{t('video.device')}</span>
-      </div>
-    </Popover>
+    <Select
+      value={videoDeviceId || undefined}
+      style={{ width: 250 }}
+      options={devices}
+      fieldNames={{
+        value: 'videoId',
+        label: 'videoName'
+      }}
+      allowClear={true}
+      loading={videoState === 'connecting'}
+      placeholder={t('modal.selectVideo')}
+      onChange={selectVideo}
+      onClick={getDevices}
+    />
   );
 };
