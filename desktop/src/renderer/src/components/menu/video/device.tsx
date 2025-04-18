@@ -8,38 +8,59 @@ import { useTranslation } from 'react-i18next'
 import { resolutionAtom, videoDeviceIdAtom } from '@renderer/jotai/device'
 import { camera } from '@renderer/libs/camera'
 import * as storage from '@renderer/libs/storage'
+import type { MediaDevice } from '@renderer/types'
 
 export const Device = (): ReactElement => {
   const { t } = useTranslation()
   const resolution = useAtomValue(resolutionAtom)
   const [videoDeviceId, setVideoDeviceId] = useAtom(videoDeviceIdAtom)
 
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
+  const [devices, setDevices] = useState<MediaDevice[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        // Prompt for camera access to unlock device labels
-        await navigator.mediaDevices.getUserMedia({ video: true })
-      } catch (err) {
-        console.error('Camera permission denied:', err)
-        return
-      }
-
-      const deviceInfo = await navigator.mediaDevices.enumerateDevices()
-      const videoDevices = deviceInfo.filter((device) => device.kind === 'videoinput')
-      setDevices(videoDevices)
-    })()
+    getDevices()
   }, [])
 
-  async function selectDevice(deviceId: string): Promise<void> {
+  async function getDevices(): Promise<void> {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true })
+
+      const allDevices = await navigator.mediaDevices.enumerateDevices()
+      const videoDevices = allDevices.filter((device) => device.kind === 'videoinput')
+      const audioDevices = allDevices.filter((device) => device.kind === 'audioinput')
+
+      const mediaDevices = videoDevices.map((videoDevice) => {
+        const device: MediaDevice = {
+          videoId: videoDevice.deviceId,
+          videoName: videoDevice.label
+        }
+
+        if (videoDevice.groupId) {
+          const matchedAudioDevice = audioDevices.find(
+            (audioDevice) => audioDevice.groupId === videoDevice.groupId
+          )
+          if (matchedAudioDevice) {
+            device.audioId = matchedAudioDevice.deviceId
+            device.audioName = matchedAudioDevice.label
+          }
+        }
+
+        return device
+      })
+
+      setDevices(mediaDevices)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async function selectDevice(device: MediaDevice): Promise<void> {
     if (isLoading) return
     setIsLoading(true)
 
     try {
-      const success = await camera.open(deviceId, resolution.width, resolution.height)
-      if (!success) return
+      await camera.open(device.videoId, resolution.width, resolution.height, device.audioId)
 
       const video = document.getElementById('video') as HTMLVideoElement
       if (!video) return
@@ -52,8 +73,8 @@ export const Device = (): ReactElement => {
         console.error('video.play() failed:', err)
       }
 
-      setVideoDeviceId(deviceId)
-      storage.setVideoDevice(deviceId)
+      setVideoDeviceId(device.videoId)
+      storage.setVideoDevice(device.videoId)
     } finally {
       setIsLoading(false)
     }
@@ -61,16 +82,16 @@ export const Device = (): ReactElement => {
 
   const content = (
     <div className="max-h-[350px] overflow-y-auto">
-      {devices.map((device: MediaDeviceInfo) => (
+      {devices.map((device) => (
         <div
-          key={device.deviceId}
+          key={device.videoId}
           className={clsx(
             'cursor-pointer rounded px-2 py-1.5 hover:bg-neutral-700/60',
-            device.deviceId === videoDeviceId ? 'text-blue-500' : 'text-white'
+            device.videoId === videoDeviceId ? 'text-blue-500' : 'text-white'
           )}
-          onClick={() => selectDevice(device.deviceId)}
+          onClick={() => selectDevice(device)}
         >
-          {device.label}
+          {device.videoName}
         </div>
       ))}
     </div>

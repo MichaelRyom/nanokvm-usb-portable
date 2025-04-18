@@ -106,7 +106,7 @@ const App = () => {
 
       <video
         id="video"
-        className={clsx('block select-none', mouseStyle)}
+        className={clsx('block min-h-[480px] min-w-[640px] select-none', mouseStyle)}
         style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'scale-down' }}
         autoPlay
         playsInline

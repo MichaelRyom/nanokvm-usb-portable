@@ -64,8 +64,12 @@ export const Resolution = () => {
   }
 
   async function updateResolution(w: number, h: number) {
-    const success = await camera.open('', w, h);
-    if (!success) return;
+    try {
+      await camera.updateResolution(w, h);
+    } catch (err) {
+      console.log(err);
+      return;
+    }
 
     const video = document.getElementById('video') as HTMLVideoElement;
     if (!video) return;

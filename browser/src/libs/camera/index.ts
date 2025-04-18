@@ -2,35 +2,30 @@ class Camera {
   id: string = '';
   width: number = 1920;
   height: number = 1080;
+  audioId: string = '';
   stream: MediaStream | null = null;
 
-  public async open(id?: string, width?: number, height?: number): Promise<boolean> {
+  public async open(id: string, width: number, height: number, audioId?: string) {
     if (!id && !this.id) {
-      return false;
+      return;
     }
 
-    try {
-      this.close();
+    this.close();
 
-      const constraints = {
-        video: {
-          deviceId: { exact: id || this.id },
-          width: { ideal: width || this.width },
-          height: { ideal: height || this.height }
-        },
-        audio: true
-      };
+    const constraints = {
+      video: { deviceId: { exact: id }, width: { ideal: width }, height: { ideal: height } },
+      audio: audioId ? { deviceId: { exact: audioId } } : false
+    };
 
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
-      if (id) this.id = id;
-      if (width) this.width = width;
-      if (height) this.height = height;
+    this.id = id;
+    this.width = width;
+    this.height = height;
+    if (audioId) this.audioId = audioId;
+    this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+  }
 
-      return true;
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
+  public async updateResolution(width: number, height: number) {
+    return this.open(this.id, width, height, this.audioId);
   }
 
   public close(): void {

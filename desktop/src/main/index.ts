@@ -44,8 +44,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.sipeed.usbkvm')
 
-  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
-    console.log('Permission requested:', permission)
+  session.defaultSession.setPermissionRequestHandler((_, permission, callback) => {
     if (permission === 'media') {
       callback(true)
     } else {

@@ -5,12 +5,8 @@ import { useTranslation } from 'react-i18next'
 
 import { resolutionAtom, videoDeviceIdAtom, videoStateAtom } from '@renderer/jotai/device'
 import { camera } from '@renderer/libs/camera'
-import { getVideoDevice, setVideoDevice } from '@renderer/libs/storage'
-
-type MediaDevice = {
-  value: string
-  label: string
-}
+import * as storage from '@renderer/libs/storage'
+import type { MediaDevice } from '@renderer/types'
 
 type VideoProps = {
   setMsg: (msg: string) => void
@@ -23,43 +19,73 @@ export const Video = ({ setMsg }: VideoProps): ReactElement => {
   const [videoState, setVideoState] = useAtom(videoStateAtom)
   const [videoDeviceId, setVideoDeviceId] = useAtom(videoDeviceIdAtom)
 
-  const [videoDevices, setVideoDevices] = useState<MediaDevice[]>([])
+  const [devices, setDevices] = useState<MediaDevice[]>([])
 
   useEffect(() => {
-    getVideoDevices(true)
+    getDevices(true)
   }, [])
 
-  async function getVideoDevices(autoOpen: boolean): Promise<void> {
-    const allDevices = await navigator.mediaDevices.enumerateDevices()
+  async function getDevices(autoOpen: boolean): Promise<void> {
+    try {
+      const allDevices = await navigator.mediaDevices.enumerateDevices()
+      const videoDevices = allDevices.filter((device) => device.kind === 'videoinput')
+      const audioDevices = allDevices.filter((device) => device.kind === 'audioinput')
 
-    const devices = allDevices
-      .filter((device) => device.kind === 'videoinput')
-      .map((device) => ({ value: device.deviceId, label: device.label }))
+      const mediaDevices = videoDevices.map((videoDevice) => {
+        const device: MediaDevice = {
+          videoId: videoDevice.deviceId,
+          videoName: videoDevice.label
+        }
 
-    setVideoDevices(devices)
+        if (videoDevice.groupId) {
+          const matchedAudioDevice = audioDevices.find(
+            (audioDevice) => audioDevice.groupId === videoDevice.groupId
+          )
+          if (matchedAudioDevice) {
+            device.audioId = matchedAudioDevice.deviceId
+            device.audioName = matchedAudioDevice.label
+          }
+        }
 
-    if (autoOpen) {
-      const deviceId = getVideoDevice()
-      if (deviceId && devices.some((device) => device.value === deviceId)) {
-        await selectVideo(deviceId)
+        return device
+      })
+
+      setDevices(mediaDevices)
+
+      if (autoOpen) {
+        const videoId = storage.getVideoDevice()
+        if (!videoId) return
+        const device = mediaDevices.find((d) => d.videoId === videoId)
+        if (!device) return
+        await openCamera(device.videoId, device.audioId)
       }
+    } catch (err) {
+      console.log(err)
+      setMsg(t('camera.failed'))
     }
   }
 
-  async function selectVideo(deviceId: string): Promise<void> {
-    if (!deviceId) {
+  async function selectDevice(videoId: string): Promise<void> {
+    if (!videoId) {
       setVideoDeviceId('')
       return
     }
 
     if (videoState === 'connecting') return
-
     setVideoState('connecting')
     setMsg('')
 
+    const device = devices.find((d) => d.videoId === videoId)
+    if (!device) {
+      return
+    }
+
+    await openCamera(device.videoId, device.audioId)
+  }
+
+  async function openCamera(videoId: string, audioId?: string): Promise<void> {
     try {
-      const success = await camera.open(deviceId, resolution.width, resolution.height)
-      if (!success) return
+      await camera.open(videoId, resolution.width, resolution.height, audioId)
 
       const video = document.getElementById('video') as HTMLVideoElement
       if (!video) return
@@ -67,8 +93,8 @@ export const Video = ({ setMsg }: VideoProps): ReactElement => {
       video.srcObject = camera.getStream()
 
       setVideoState('connected')
-      setVideoDeviceId(deviceId)
-      setVideoDevice(deviceId)
+      setVideoDeviceId(videoId)
+      storage.setVideoDevice(videoId)
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('camera.failed')
       setMsg(msg)
@@ -79,12 +105,16 @@ export const Video = ({ setMsg }: VideoProps): ReactElement => {
     <Select
       value={videoDeviceId || undefined}
       style={{ width: 280 }}
-      options={videoDevices}
+      options={devices}
+      fieldNames={{
+        value: 'videoId',
+        label: 'videoName'
+      }}
       allowClear={true}
       loading={videoState === 'connecting'}
       placeholder={t('modal.selectVideo')}
-      onChange={selectVideo}
-      onClick={() => getVideoDevices(false)}
+      onChange={selectDevice}
+      onClick={() => getDevices(false)}
     />
   )
 }
