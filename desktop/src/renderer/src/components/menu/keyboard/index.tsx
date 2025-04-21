@@ -2,6 +2,7 @@ import { ReactElement, useState } from 'react'
 import { Popover } from 'antd'
 import { KeyboardIcon } from 'lucide-react'
 
+import { CtrlAltDel } from './ctrl-alt-del'
 import { Paste } from './paste'
 import { VirtualKeyboard } from './virtual-keyboard'
 
@@ -11,6 +12,7 @@ export const Keyboard = (): ReactElement => {
   const content = (
     <>
       <Paste />
+      <CtrlAltDel />
       <VirtualKeyboard />
     </>
   )

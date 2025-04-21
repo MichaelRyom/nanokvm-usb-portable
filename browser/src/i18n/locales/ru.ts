@@ -36,7 +36,8 @@ const ru = {
     },
     keyboard: {
       paste: 'Вставить текст',
-      virtualKeyboard: 'Виртуальная клавиатура'
+      virtualKeyboard: 'Виртуальная клавиатура',
+      ctrlAltDel: 'Ctrl + Alt + Delete'
     },
     mouse: {
       cursor: {
