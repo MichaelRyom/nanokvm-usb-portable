@@ -1,4 +1,4 @@
-import { app, ipcMain, shell, systemPreferences } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, systemPreferences } from 'electron'
 import type { IpcMainEvent, OpenExternalOptions } from 'electron'
 
 import { IpcEvents } from '../../common/ipc-events'
@@ -7,6 +7,7 @@ export function registerApp(): void {
   ipcMain.handle(IpcEvents.GET_APP_VERSION, getAppVersion)
   ipcMain.on(IpcEvents.OPEN_EXTERNAL_RUL, openExternalUrl)
   ipcMain.handle(IpcEvents.REQUEST_MEDIA_PERMISSIONS, requestMediaPermissions)
+  ipcMain.on(IpcEvents.SET_FULL_SCREEN, setFullScreen)
 }
 
 function getAppVersion(): string {
@@ -39,4 +40,11 @@ async function grant(media: 'camera' | 'microphone'): Promise<boolean> {
     console.error('Error request permission:', error)
     return false
   }
+}
+
+function setFullScreen(e: IpcMainEvent, flag: boolean): void {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (!win) return
+
+  win.setFullScreen(flag)
 }

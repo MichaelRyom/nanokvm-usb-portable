@@ -5,6 +5,7 @@ import { MenuIcon, XIcon } from 'lucide-react'
 
 import * as storage from '@renderer/libs/storage'
 
+import { Fullscreen } from './fullscreen'
 import { Keyboard } from './keyboard'
 import { Mouse } from './mouse'
 import { SerialPort } from './serial-port'
@@ -40,6 +41,7 @@ export const Menu = (): ReactElement => {
           <Keyboard />
           <Divider type="vertical" className="px-[2px]" />
 
+          <Fullscreen />
           <Settings />
           <div
             className="flex h-[28px] cursor-pointer items-center justify-center rounded px-2 text-white hover:bg-neutral-700/70"

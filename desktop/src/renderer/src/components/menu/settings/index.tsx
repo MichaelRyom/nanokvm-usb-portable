@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import { BadgeInfoIcon, CircleArrowUpIcon, PaletteIcon, SettingsIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { IpcEvents } from '@common/ipc-events'
 import * as storage from '@renderer/libs/storage'
 
 import { About } from './about'
@@ -21,7 +22,7 @@ export const Settings = (): ReactElement => {
     const skip = storage.getSkipUpdate()
     if (skip) return
 
-    window.electron.ipcRenderer.invoke('check-for-updates').then((info) => {
+    window.electron.ipcRenderer.invoke(IpcEvents.CHECK_FOR_UPDATES).then((info) => {
       if (info?.version) {
         setIsUpdateAvailable(true)
       }
@@ -65,7 +66,7 @@ export const Settings = (): ReactElement => {
         styles={{ content: { padding: 0 } }}
         onCancel={closeModal}
       >
-        <div className="flex min-h-[500px] rounded-lg outline outline-1 outline-neutral-700">
+        <div className="flex min-h-[500px] rounded-lg outline-1 outline-neutral-700">
           <div className="flex flex-col space-y-1 rounded-l-lg bg-neutral-800 px-2 py-5 sm:w-1/5 md:w-1/4">
             <div className="hidden px-3 text-lg font-bold sm:block">{t('settings.title')}</div>
             <div className="pt-3" />
