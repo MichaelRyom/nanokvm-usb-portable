@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 import { resolutionAtom } from '@/jotai/device.ts';
-import { scrollDirectionAtom } from '@/jotai/mouse.ts';
+import { scrollDirectionAtom, scrollIntervalAtom } from '@/jotai/mouse.ts';
 import { device } from '@/libs/device';
 import { Key } from '@/libs/device/mouse.ts';
 
@@ -14,9 +14,11 @@ export const Relative = () => {
 
   const resolution = useAtomValue(resolutionAtom);
   const scrollDirection = useAtomValue(scrollDirectionAtom);
+  const scrollInterval = useAtomValue(scrollIntervalAtom);
 
   const isLockedRef = useRef(false);
   const keyRef = useRef<Key>(new Key());
+  const lastScrollTimeRef = useRef(0);
 
   useEffect(() => {
     messageApi.open({
@@ -114,10 +116,17 @@ export const Relative = () => {
     async function handleWheel(event: any) {
       disableEvent(event);
 
+      const currentTime = Date.now();
+      if (currentTime - lastScrollTimeRef.current < scrollInterval) {
+        return;
+      }
+
       const delta = Math.floor(event.deltaY);
       if (delta === 0) return;
 
       await send(0, 0, delta > 0 ? -1 * scrollDirection : scrollDirection);
+
+      lastScrollTimeRef.current = currentTime;
     }
 
     return () => {
@@ -129,7 +138,7 @@ export const Relative = () => {
       canvas.removeEventListener('wheel', handleWheel);
       canvas.removeEventListener('contextmenu', disableEvent);
     };
-  }, [resolution, scrollDirection]);
+  }, [resolution, scrollDirection, scrollInterval]);
 
   async function send(x: number, y: number, scroll: number) {
     await device.sendMouseRelativeData(keyRef.current, x, y, scroll);

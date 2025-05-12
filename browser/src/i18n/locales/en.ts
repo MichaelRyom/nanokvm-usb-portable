@@ -53,6 +53,9 @@ const en = {
       direction: 'Wheel direction',
       scrollUp: 'Scroll up',
       scrollDown: 'Scroll down',
+      speed: 'Wheel speed',
+      fast: 'Fast',
+      slow: 'Slow',
       requestPointer: 'Using relative mode. Please click desktop to get mouse pointer.'
     },
     settings: {

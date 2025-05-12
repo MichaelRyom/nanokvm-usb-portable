@@ -8,6 +8,7 @@ const IS_MENU_OPEN_KEY = 'nanokvm-is-menu-open';
 const MOUSE_STYLE_KEY = 'nanokvm-usb-mouse-style';
 const MOUSE_MODE_KEY = 'nanokvm-usb-mouse-mode';
 const MOUSE_SCROLL_DIRECTION_KEY = 'nanokvm-usb-mouse-scroll-direction';
+const MOUSE_SCROLL_INTERVAL_KEY = 'nanokvm-usb-mouse-scroll-interval';
 
 export function getLanguage() {
   return localStorage.getItem(LANGUAGE_KEY);
@@ -83,10 +84,26 @@ export function setMouseMode(mouse: string) {
   localStorage.setItem(MOUSE_MODE_KEY, mouse);
 }
 
-export function getMouseScrollDirection(): string | null {
-  return localStorage.getItem(MOUSE_SCROLL_DIRECTION_KEY);
+export function getMouseScrollDirection(): number | null {
+  const direction = localStorage.getItem(MOUSE_SCROLL_DIRECTION_KEY);
+  if (direction && Number(direction)) {
+    return Number(direction);
+  }
+  return null;
 }
 
-export function setMouseScrollDirection(mouse: string): void {
-  localStorage.setItem(MOUSE_SCROLL_DIRECTION_KEY, mouse);
+export function setMouseScrollDirection(direction: number): void {
+  localStorage.setItem(MOUSE_SCROLL_DIRECTION_KEY, String(direction));
+}
+
+export function getMouseScrollInterval(): number | null {
+  const interval = localStorage.getItem(MOUSE_SCROLL_INTERVAL_KEY);
+  if (interval && Number(interval)) {
+    return Number(interval);
+  }
+  return null;
+}
+
+export function setMouseScrollInterval(interval: number): void {
+  localStorage.setItem(MOUSE_SCROLL_INTERVAL_KEY, String(interval));
 }

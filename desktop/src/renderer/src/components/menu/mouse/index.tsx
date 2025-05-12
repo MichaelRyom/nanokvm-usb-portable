@@ -3,17 +3,24 @@ import { Popover } from 'antd'
 import { useAtom, useSetAtom } from 'jotai'
 import { MouseIcon } from 'lucide-react'
 
-import { mouseModeAtom, mouseStyleAtom, scrollDirectionAtom } from '@renderer/jotai/mouse'
+import {
+  mouseModeAtom,
+  mouseStyleAtom,
+  scrollDirectionAtom,
+  scrollIntervalAtom
+} from '@renderer/jotai/mouse'
 import * as storage from '@renderer/libs/storage'
 
 import { Direction } from './direction'
 import { Mode } from './mode'
+import { Speed } from './speed'
 import { Style } from './style'
 
 export const Mouse = (): ReactElement => {
   const [mouseStyle, setMouseStyle] = useAtom(mouseStyleAtom)
   const setMouseMode = useSetAtom(mouseModeAtom)
   const setScrollDirection = useSetAtom(scrollDirectionAtom)
+  const setScrollInterval = useSetAtom(scrollIntervalAtom)
 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
@@ -29,8 +36,13 @@ export const Mouse = (): ReactElement => {
     }
 
     const direction = storage.getMouseScrollDirection()
-    if (direction && Number(direction)) {
-      setScrollDirection(Number(direction))
+    if (direction) {
+      setScrollDirection(direction > 0 ? 1 : -1)
+    }
+
+    const interval = storage.getMouseScrollInterval()
+    if (interval) {
+      setScrollInterval(interval)
     }
   }, [])
 
@@ -39,6 +51,7 @@ export const Mouse = (): ReactElement => {
       <Style />
       <Mode />
       <Direction />
+      <Speed />
     </div>
   )
 

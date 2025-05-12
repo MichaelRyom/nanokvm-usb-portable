@@ -90,7 +90,7 @@ export const Device = () => {
   );
 
   return (
-    <Popover content={content} placement="rightTop">
+    <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
       <div className="flex h-[30px] cursor-pointer items-center space-x-2 rounded px-3 text-neutral-300 hover:bg-neutral-700">
         <VideoIcon size={18} />
         <span className="select-none text-sm">{t('video.device')}</span>

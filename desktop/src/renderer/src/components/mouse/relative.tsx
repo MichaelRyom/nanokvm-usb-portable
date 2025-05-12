@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { IpcEvents } from '@common/ipc-events'
 import { resolutionAtom } from '@renderer/jotai/device'
-import { scrollDirectionAtom } from '@renderer/jotai/mouse'
+import { scrollDirectionAtom, scrollIntervalAtom } from '@renderer/jotai/mouse'
 import type { Mouse as MouseKey } from '@renderer/types'
 
 export const Relative = (): ReactElement => {
@@ -14,6 +14,7 @@ export const Relative = (): ReactElement => {
 
   const resolution = useAtomValue(resolutionAtom)
   const scrollDirection = useAtomValue(scrollDirectionAtom)
+  const scrollInterval = useAtomValue(scrollIntervalAtom)
 
   const isLockedRef = useRef(false)
   const keyRef = useRef<MouseKey>({
@@ -21,6 +22,7 @@ export const Relative = (): ReactElement => {
     right: false,
     mid: false
   })
+  const lastScrollTimeRef = useRef(0)
 
   useEffect(() => {
     messageApi.open({
@@ -113,10 +115,17 @@ export const Relative = (): ReactElement => {
     async function handleWheel(event: WheelEvent): Promise<void> {
       disableEvent(event)
 
+      const currentTime = Date.now()
+      if (currentTime - lastScrollTimeRef.current < scrollInterval) {
+        return
+      }
+
       const delta = Math.floor(event.deltaY)
       if (delta === 0) return
 
       await send(0, 0, delta > 0 ? -1 * scrollDirection : scrollDirection)
+
+      lastScrollTimeRef.current = currentTime
     }
 
     async function send(x: number, y: number, scroll: number): Promise<void> {
@@ -137,7 +146,7 @@ export const Relative = (): ReactElement => {
       canvas.removeEventListener('wheel', handleWheel)
       canvas.removeEventListener('contextmenu', disableEvent)
     }
-  }, [resolution, scrollDirection])
+  }, [resolution, scrollDirection, scrollInterval])
 
   function disableEvent(event: MouseEvent): void {
     event.preventDefault()

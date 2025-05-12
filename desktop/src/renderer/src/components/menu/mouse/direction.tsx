@@ -19,37 +19,34 @@ export const Direction = (): ReactElement => {
   ]
 
   function update(direction: string): void {
-    setScrollDirection(Number(direction))
-    storage.setMouseScrollDirection(direction)
+    const value = Number(direction);
+
+    setScrollDirection(value)
+    storage.setMouseScrollDirection(value)
   }
 
+  const content = (
+    <>
+      {directions.map((direction) => (
+        <div
+          key={direction.value}
+          className={clsx(
+            'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-2 hover:bg-neutral-700/60',
+            direction.value === scrollDirection.toString() ? 'text-blue-500' : 'text-neutral-300'
+          )}
+          onClick={() => update(direction.value)}
+        >
+          {direction.name}
+        </div>
+      ))}
+    </>
+  )
+
   return (
-    <Popover
-      content={
-        <>
-          {directions.map((direction) => (
-            <div
-              key={direction.value}
-              className={clsx(
-                'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-2 hover:bg-neutral-700/60',
-                direction.value === scrollDirection.toString()
-                  ? 'text-blue-500'
-                  : 'text-neutral-300'
-              )}
-              onClick={() => update(direction.value)}
-            >
-              {direction.name}
-            </div>
-          ))}
-        </>
-      }
-      placement="rightTop"
-      arrow={true}
-      trigger="hover"
-    >
+    <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
       <div className="flex h-[30px] cursor-pointer items-center space-x-1 rounded px-3 text-neutral-300 hover:bg-neutral-700/60">
         <div className="flex h-[14px] w-[20px] items-end">
-          <ArrowDownUpIcon size={14} />
+          <ArrowDownUpIcon size={16} />
         </div>
         <span>{t('mouse.direction')}</span>
       </div>

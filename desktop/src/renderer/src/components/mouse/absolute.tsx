@@ -3,18 +3,20 @@ import { useAtomValue } from 'jotai'
 
 import { IpcEvents } from '@common/ipc-events'
 import { resolutionAtom } from '@renderer/jotai/device'
-import { scrollDirectionAtom } from '@renderer/jotai/mouse'
+import { scrollDirectionAtom, scrollIntervalAtom } from '@renderer/jotai/mouse'
 import type { Mouse as MouseKey } from '@renderer/types'
 
 export const Absolute = (): ReactElement => {
   const resolution = useAtomValue(resolutionAtom)
   const scrollDirection = useAtomValue(scrollDirectionAtom)
+  const scrollInterval = useAtomValue(scrollIntervalAtom)
 
   const keyRef = useRef<MouseKey>({
     left: false,
     right: false,
     mid: false
   })
+  const lastScrollTimeRef = useRef(0)
 
   useEffect(() => {
     const canvas = document.getElementById('video')
@@ -81,10 +83,17 @@ export const Absolute = (): ReactElement => {
     async function handleWheel(event: WheelEvent): Promise<void> {
       disableEvent(event)
 
+      const currentTime = Date.now()
+      if (currentTime - lastScrollTimeRef.current < scrollInterval) {
+        return
+      }
+
       const delta = Math.floor(event.deltaY)
       if (delta === 0) return
 
       await send(event, delta > 0 ? -1 * scrollDirection : scrollDirection)
+
+      lastScrollTimeRef.current = currentTime
     }
 
     async function send(event: MouseEvent, scroll: number = 0): Promise<void> {
@@ -116,7 +125,7 @@ export const Absolute = (): ReactElement => {
       canvas.removeEventListener('click', disableEvent)
       canvas.removeEventListener('contextmenu', disableEvent)
     }
-  }, [resolution, scrollDirection])
+  }, [resolution, scrollDirection, scrollInterval])
 
   function disableEvent(event: MouseEvent): void {
     event.preventDefault()

@@ -23,31 +23,28 @@ export const Mode = (): ReactElement => {
     storage.setMouseMode(mode)
   }
 
+  const content = (
+    <>
+      {mouseModes.map((mode) => (
+        <div
+          key={mode.value}
+          className={clsx(
+            'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-2 hover:bg-neutral-700/60',
+            mode.value === mouseMode ? 'text-blue-500' : 'text-neutral-300'
+          )}
+          onClick={() => update(mode.value)}
+        >
+          {mode.name}
+        </div>
+      ))}
+    </>
+  )
+
   return (
-    <Popover
-      content={
-        <>
-          {mouseModes.map((mode) => (
-            <div
-              key={mode.value}
-              className={clsx(
-                'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-2 hover:bg-neutral-700/60',
-                mode.value === mouseMode ? 'text-blue-500' : 'text-neutral-300'
-              )}
-              onClick={() => update(mode.value)}
-            >
-              {mode.name}
-            </div>
-          ))}
-        </>
-      }
-      placement="rightTop"
-      arrow={true}
-      trigger="hover"
-    >
+    <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
       <div className="flex h-[30px] cursor-pointer items-center space-x-1 rounded px-3 text-neutral-300 hover:bg-neutral-700/60">
         <div className="flex h-[14px] w-[20px] items-end">
-          <SquareMousePointerIcon size={14} />
+          <SquareMousePointerIcon size={16} />
         </div>
         <span>{t('mouse.mode')}</span>
       </div>

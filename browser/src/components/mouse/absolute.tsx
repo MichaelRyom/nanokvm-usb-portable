@@ -2,15 +2,17 @@ import { useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { resolutionAtom } from '@/jotai/device.ts';
-import { scrollDirectionAtom } from '@/jotai/mouse.ts';
+import { scrollDirectionAtom, scrollIntervalAtom } from '@/jotai/mouse.ts';
 import { device } from '@/libs/device';
 import { Key } from '@/libs/device/mouse.ts';
 
 export const Absolute = () => {
   const resolution = useAtomValue(resolutionAtom);
   const scrollDirection = useAtomValue(scrollDirectionAtom);
+  const scrollInterval = useAtomValue(scrollIntervalAtom);
 
   const keyRef = useRef<Key>(new Key());
+  const lastScrollTimeRef = useRef(0);
 
   // listen mouse events
   useEffect(() => {
@@ -78,10 +80,17 @@ export const Absolute = () => {
     async function handleWheel(event: any) {
       disableEvent(event);
 
+      const currentTime = Date.now();
+      if (currentTime - lastScrollTimeRef.current < scrollInterval) {
+        return;
+      }
+
       const delta = Math.floor(event.deltaY);
       if (delta === 0) return;
 
       await send(event, delta > 0 ? -1 * scrollDirection : scrollDirection);
+
+      lastScrollTimeRef.current = currentTime;
     }
 
     async function send(event: MouseEvent, scroll: number = 0) {
@@ -100,7 +109,7 @@ export const Absolute = () => {
       canvas.removeEventListener('click', disableEvent);
       canvas.removeEventListener('contextmenu', disableEvent);
     };
-  }, [resolution, scrollDirection]);
+  }, [resolution, scrollDirection, scrollInterval]);
 
   // disable default events
   function disableEvent(event: any) {
