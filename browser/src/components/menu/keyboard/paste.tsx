@@ -3,8 +3,50 @@ import { ClipboardIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { device } from '@/libs/device';
-import { CharCodes, ShiftChars } from '@/libs/keyboard/charCodes.ts';
-import { getModifierBit } from '@/libs/keyboard/keymap.ts';
+import { getLayoutById, initLayoutDetection, LayoutMap } from '@/libs/keyboard/layouts.ts';
+import { ModifierBits } from '@/libs/keyboard/keymap.ts';
+
+// Initialize layout detection early
+initLayoutDetection();
+
+// Paste text as keystrokes using the specified keyboard layout
+export async function pasteText(text: string, layoutId: string = 'auto'): Promise<void> {
+  const layout: LayoutMap = getLayoutById(layoutId);
+  
+  console.log(`Pasting with layout: ${layoutId}, text length: ${text.length}`);
+
+  // Release all keys first to ensure clean state
+  await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
+  await new Promise((r) => setTimeout(r, 50));
+
+  for (const char of text) {
+    const mapping = layout[char];
+    if (!mapping) {
+      console.warn(`No mapping for character: '${char}' (code ${char.charCodeAt(0)})`);
+      continue;
+    }
+
+    let modifier = 0;
+    if (mapping.shift) {
+      modifier |= ModifierBits.LeftShift;
+    }
+    if (mapping.altGr) {
+      // AltGr is typically Right Alt
+      modifier |= ModifierBits.RightAlt;
+    }
+
+    console.log(`Char '${char}' -> code: 0x${mapping.code.toString(16)}, modifier: ${modifier}`);
+
+    // Key down
+    const keys = [modifier, 0, mapping.code, 0, 0, 0, 0, 0];
+    await device.sendKeyboardData(keys);
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Key up
+    await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
+    await new Promise((r) => setTimeout(r, 30));
+  }
+}
 
 export const Paste = () => {
   const { t } = useTranslation();
@@ -17,32 +59,12 @@ export const Paste = () => {
     try {
       const text = await navigator.clipboard.readText();
       if (!text) return;
-
-      for (const char of text) {
-        const ascii = char.charCodeAt(0);
-
-        const code = CharCodes[ascii];
-        if (!code) continue;
-
-        let modifier = 0;
-        if ((ascii >= 65 && ascii <= 90) || ShiftChars[ascii]) {
-          modifier |= getModifierBit('ShiftLeft');
-        }
-
-        await send(modifier, code);
-        await new Promise((r) => setTimeout(r, 50));
-        await send(0, 0);
-      }
+      await pasteText(text);
     } catch (e) {
       console.log(e);
     } finally {
       setIsLoading(false);
     }
-  }
-
-  async function send(modifier: number, code: number): Promise<void> {
-    const keys = [modifier, 0, code, 0, 0, 0, 0, 0];
-    await device.sendKeyboardData(keys);
   }
 
   return (

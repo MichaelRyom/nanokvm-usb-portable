@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Divider, Popover } from 'antd';
-import { useAtom, useSetAtom } from 'jotai';
+import { Popover } from 'antd';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { MouseIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
+import { menuConfigAtom } from '@/jotai/device';
 import {
   mouseJigglerModeAtom,
   mouseModeAtom,
@@ -10,16 +12,28 @@ import {
   scrollDirectionAtom,
   scrollIntervalAtom
 } from '@/jotai/mouse.ts';
+import type { MouseSubItemId } from '@/libs/menu-config';
 import { mouseJiggler } from '@/libs/mouse-jiggler';
 import * as storage from '@/libs/storage';
 
+import { MenuTooltip } from '../menu-tooltip';
 import { Direction } from './direction.tsx';
 import { Jiggler } from './jiggler.tsx';
 import { Mode } from './mode.tsx';
 import { Speed } from './speed.tsx';
 import { Style } from './style.tsx';
 
+const SUB_COMPONENTS: Record<MouseSubItemId, React.FC> = {
+  'mouse.style': Style,
+  'mouse.mode': Mode,
+  'mouse.direction': Direction,
+  'mouse.speed': Speed,
+  'mouse.jiggler': Jiggler,
+};
+
 export const Mouse = () => {
+  const { t } = useTranslation();
+  const menuConfig = useAtomValue(menuConfigAtom);
   const [mouseStyle, setMouseStyle] = useAtom(mouseStyleAtom);
   const [mouseMode, setMouseMode] = useAtom(mouseModeAtom);
   const setScrollDirection = useSetAtom(scrollDirectionAtom);
@@ -60,28 +74,27 @@ export const Mouse = () => {
 
   const content = (
     <div className="flex flex-col space-y-0.5">
-      <Style />
-      <Mode />
-      <Direction />
-      <Speed />
-
-      <Divider style={{ margin: '5px 0 5px 0' }} />
-      <Jiggler />
+      {menuConfig.subMenus.mouse.map((itemId) => {
+        const Component = SUB_COMPONENTS[itemId];
+        return Component ? <Component key={itemId} /> : null;
+      })}
     </div>
   );
 
   return (
-    <Popover
-      content={content}
-      placement="bottomLeft"
-      trigger="click"
-      arrow={false}
-      open={isPopoverOpen}
-      onOpenChange={setIsPopoverOpen}
-    >
-      <div className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded text-neutral-300 hover:bg-neutral-700/70 hover:text-white">
-        <MouseIcon size={18} />
-      </div>
-    </Popover>
+    <MenuTooltip title={t('menu.mouse', 'Mouse')}>
+      <Popover
+        content={content}
+        placement="bottomLeft"
+        trigger="click"
+        arrow={false}
+        open={isPopoverOpen}
+        onOpenChange={setIsPopoverOpen}
+      >
+        <div className="flex h-[28px] w-[28px] cursor-pointer items-center justify-center rounded text-neutral-300 hover:bg-neutral-700/70 hover:text-white">
+          <MouseIcon size={18} />
+        </div>
+      </Popover>
+    </MenuTooltip>
   );
 };

@@ -1,4 +1,6 @@
 import type { Resolution, Rotation } from '@/types';
+import type { MenuConfig } from '@/libs/menu-config';
+import { DEFAULT_MENU_CONFIG, validateMenuConfig } from '@/libs/menu-config';
 
 const LANGUAGE_KEY = 'nanokvm-usb-language';
 const VIDEO_DEVICE_ID_KEY = 'nanokvm-usb-video-device-id';
@@ -13,6 +15,11 @@ const MOUSE_SCROLL_DIRECTION_KEY = 'nanokvm-usb-mouse-scroll-direction';
 const MOUSE_SCROLL_INTERVAL_KEY = 'nanokvm-usb-mouse-scroll-interval';
 const MOUSE_JIGGLER_MODE_KEY = 'nanokvm-usb-mouse-jiggler-mode';
 const KEYBOARD_SHORTCUT_KEY = 'nanokvm-usb-keyboard-shortcut';
+const TARGET_KEYBOARD_LAYOUT_KEY = 'nanokvm-usb-target-keyboard-layout';
+const PASTE_SPEED_KEY = 'nanokvm-usb-paste-speed';
+const MENU_ORIENTATION_KEY = 'nanokvm-usb-menu-orientation';
+const SHOW_TOOLTIPS_KEY = 'nanokvm-usb-show-tooltips';
+const MENU_CONFIG_KEY = 'nanokvm-usb-menu-config';
 
 export function getLanguage() {
   return localStorage.getItem(LANGUAGE_KEY);
@@ -154,4 +161,67 @@ export function getMouseJigglerMode(): 'enable' | 'disable' {
 
 export function setMouseJigglerMode(jiggler: 'enable' | 'disable'): void {
   localStorage.setItem(MOUSE_JIGGLER_MODE_KEY, jiggler);
+}
+
+export function getTargetKeyboardLayout(): string {
+  return localStorage.getItem(TARGET_KEYBOARD_LAYOUT_KEY) ?? 'us';
+}
+
+export function setTargetKeyboardLayout(layout: string): void {
+  localStorage.setItem(TARGET_KEYBOARD_LAYOUT_KEY, layout);
+}
+
+// Paste speed in milliseconds (key down delay)
+export function getPasteSpeed(): number {
+  const speed = localStorage.getItem(PASTE_SPEED_KEY);
+  if (speed) {
+    const value = Number(speed);
+    if (!isNaN(value) && value >= 1 && value <= 200) {
+      return value;
+    }
+  }
+  return 1; // Default to 1ms (fastest)
+}
+
+export function setPasteSpeed(speed: number): void {
+  localStorage.setItem(PASTE_SPEED_KEY, String(speed));
+}
+
+export type MenuOrientation = 'horizontal' | 'vertical';
+
+export function getMenuOrientation(): MenuOrientation {
+  const orientation = localStorage.getItem(MENU_ORIENTATION_KEY);
+  if (orientation === 'vertical') return 'vertical';
+  return 'horizontal';
+}
+
+export function setMenuOrientation(orientation: MenuOrientation): void {
+  localStorage.setItem(MENU_ORIENTATION_KEY, orientation);
+}
+
+export function getShowTooltips(): boolean {
+  const value = localStorage.getItem(SHOW_TOOLTIPS_KEY);
+  return value !== 'false'; // Default to true
+}
+
+export function setShowTooltips(show: boolean): void {
+  localStorage.setItem(SHOW_TOOLTIPS_KEY, show ? 'true' : 'false');
+}
+
+export function getMenuConfig(): MenuConfig {
+  const config = localStorage.getItem(MENU_CONFIG_KEY);
+  if (config) {
+    try {
+      const parsed = JSON.parse(config) as MenuConfig;
+      return validateMenuConfig(parsed);
+    } catch {
+      return DEFAULT_MENU_CONFIG;
+    }
+  }
+  return DEFAULT_MENU_CONFIG;
+}
+
+export function setMenuConfig(config: MenuConfig): void {
+  const validated = validateMenuConfig(config);
+  localStorage.setItem(MENU_CONFIG_KEY, JSON.stringify(validated));
 }

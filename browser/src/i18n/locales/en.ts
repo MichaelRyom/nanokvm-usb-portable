@@ -85,7 +85,11 @@ const en = {
     settings: {
       language: 'Language',
       document: 'Document',
-      download: 'Download'
+      download: 'Download',
+      keyboardLayout: {
+        title: 'Target Keyboard',
+        description: 'Select the keyboard layout of the target system for correct paste behavior'
+      }
     }
   }
 };

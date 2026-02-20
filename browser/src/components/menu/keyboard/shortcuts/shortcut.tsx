@@ -8,9 +8,10 @@ import type { Shortcut as ShortcutInterface } from './types.ts';
 
 type ShortcutProps = {
   shortcut: ShortcutInterface;
+  onAction?: () => void;
 };
 
-export const Shortcut = ({ shortcut }: ShortcutProps) => {
+export const Shortcut = ({ shortcut, onAction }: ShortcutProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleClick(): Promise<void> {
@@ -19,6 +20,7 @@ export const Shortcut = ({ shortcut }: ShortcutProps) => {
 
     try {
       await sendShortcut();
+      onAction?.();
     } catch (err) {
       console.log(err);
     } finally {

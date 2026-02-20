@@ -10,28 +10,30 @@ import { Recorder } from './recorder.tsx';
 import { Shortcut } from './shortcut.tsx';
 import type { Shortcut as ShortcutInterface } from './types.ts';
 
-export const Shortcuts = () => {
-  const { t } = useTranslation();
+const defaultShortcuts: ShortcutInterface[] = [
+  {
+    keys: [
+      { code: 'MetaLeft', label: 'Win' },
+      { code: 'Tab', label: 'Tab' }
+    ]
+  },
+  {
+    keys: [
+      { code: 'ControlLeft', label: 'Ctrl' },
+      { code: 'AltLeft', label: 'Alt' },
+      { code: 'Delete', label: 'Del' }
+    ]
+  }
+];
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+interface ShortcutsContentProps {
+  onAction?: () => void;
+}
+
+// Content component for direct use in promoted items
+export const ShortcutsContent = ({ onAction }: ShortcutsContentProps = {}) => {
   const [customShortcuts, setCustomShortcuts] = useState<ShortcutInterface[]>([]);
-
-  const defaultShortcuts: ShortcutInterface[] = [
-    {
-      keys: [
-        { code: 'MetaLeft', label: 'Win' },
-        { code: 'Tab', label: 'Tab' }
-      ]
-    },
-    {
-      keys: [
-        { code: 'ControlLeft', label: 'Ctrl' },
-        { code: 'AltLeft', label: 'Alt' },
-        { code: 'Delete', label: '⌫' }
-      ]
-    }
-  ];
+  const [, setIsRecording] = useState(false);
 
   useEffect(() => {
     const shortcuts = storage.getShortcuts();
@@ -51,6 +53,35 @@ export const Shortcuts = () => {
     storage.setShortcuts(JSON.stringify(shortcuts));
   }
 
+  return (
+    <ScrollArea className="max-w-[400px] [&>[data-radix-scroll-area-viewport]]:max-h-[350px]">
+      {customShortcuts.length > 0 && (
+        <>
+          {customShortcuts.map((shortcut, index) => (
+            <Shortcut key={index} shortcut={shortcut} onAction={onAction} />
+          ))}
+          <Divider style={{ margin: '5px 0 5px 0' }} />
+        </>
+      )}
+      {defaultShortcuts.map((shortcut, index) => (
+        <Shortcut key={index} shortcut={shortcut} onAction={onAction} />
+      ))}
+      <Divider style={{ margin: '5px 0 5px 0' }} />
+      <Recorder
+        shortcuts={customShortcuts}
+        addShortcut={addShortcut}
+        delShortcut={delShortcut}
+        setIsRecording={setIsRecording}
+      />
+    </ScrollArea>
+  );
+};
+
+export const Shortcuts = () => {
+  const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isRecording] = useState(false);
+
   function handleOpenChange(open: boolean): void {
     if (open) {
       setIsOpen(true);
@@ -61,39 +92,12 @@ export const Shortcuts = () => {
     }
     setIsOpen(false);
   }
-
-  const content = (
-    <ScrollArea className="max-w-[400px] [&>[data-radix-scroll-area-viewport]]:max-h-[350px]">
-      {/* custom shortcuts */}
-      {customShortcuts.length > 0 && (
-        <>
-          {customShortcuts.map((shortcut, index) => (
-            <Shortcut key={index} shortcut={shortcut}></Shortcut>
-          ))}
-
-          <Divider style={{ margin: '5px 0 5px 0' }} />
-        </>
-      )}
-
-      {/*  default shortcuts */}
-      {defaultShortcuts.map((shortcut, index) => (
-        <Shortcut key={index} shortcut={shortcut}></Shortcut>
-      ))}
-
-      <Divider style={{ margin: '5px 0 5px 0' }} />
-
-      <Recorder
-        shortcuts={customShortcuts}
-        addShortcut={addShortcut}
-        delShortcut={delShortcut}
-        setIsRecording={setIsRecording}
-      />
-    </ScrollArea>
-  );
+  
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <Popover
-      content={content}
+      content={<ShortcutsContent onAction={closeMenu} />}
       trigger="hover"
       placement="rightTop"
       align={{ offset: [14, 0] }}

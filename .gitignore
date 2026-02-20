@@ -8,3 +8,8 @@
 *.njsproj
 *.sln
 *.sw?
+
+# Build artifacts
+portable/target/
+browser/dist/
+node_modules/

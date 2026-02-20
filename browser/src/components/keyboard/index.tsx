@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useAtomValue } from 'jotai';
 
+import { pasteStateAtom } from '@/components/paste-dialog';
 import { isKeyboardEnableAtom } from '@/jotai/keyboard';
 import { getOperatingSystem } from '@/libs/browser';
 import { device } from '@/libs/device';
 import { KeyboardReport } from '@/libs/keyboard/keyboard.ts';
 import { isModifier } from '@/libs/keyboard/keymap.ts';
+import { learnFromKeyEvent } from '@/libs/keyboard/layouts.ts';
 
 interface AltGrState {
   active: boolean;
@@ -16,20 +18,40 @@ const ALTGR_THRESHOLD_MS = 10;
 
 export const Keyboard = () => {
   const isKeyboardEnabled = useAtomValue(isKeyboardEnableAtom);
+  const pasteState = useAtomValue(pasteStateAtom);
 
   const keyboardRef = useRef(new KeyboardReport());
   const pressedKeys = useRef(new Set<string>());
   const altGrState = useRef<AltGrState | null>(null);
   const isComposing = useRef(false);
 
+  // Track whether keyboard should be active (use ref to avoid closure issues)
+  const shouldCaptureRef = useRef(true);
+  const wasCaptureDisabled = useRef(false);
+  const newShouldCapture = isKeyboardEnabled && !pasteState.isOpen;
+  
+  // Detect when capture is re-enabled (dialog closed)
+  if (newShouldCapture && !shouldCaptureRef.current) {
+    wasCaptureDisabled.current = true;
+  }
+  shouldCaptureRef.current = newShouldCapture;
+
   useEffect(() => {
     if (getOperatingSystem() === 'Windows' && !altGrState.current) {
       altGrState.current = { active: false, ctrlLeftTimestamp: 0 };
     }
 
-    if (!isKeyboardEnabled) {
+    // Clear state when capture was disabled and is now re-enabled
+    if (wasCaptureDisabled.current) {
+      wasCaptureDisabled.current = false;
+      pressedKeys.current.clear();
+      keyboardRef.current.reset();
+      console.log('Keyboard state cleared after paste dialog closed');
+    }
+
+    // Release keys when disabling
+    if (!shouldCaptureRef.current) {
       releaseKeys();
-      return;
     }
 
     document.addEventListener('keydown', handleKeyDown);
@@ -41,7 +63,10 @@ export const Keyboard = () => {
 
     // Key down event
     async function handleKeyDown(event: KeyboardEvent): Promise<void> {
-      if (!isKeyboardEnabled) return;
+      // When capture is disabled (dialog open), let browser handle events naturally
+      if (!shouldCaptureRef.current) {
+        return;
+      }
 
       // Skip during IME composition
       if (isComposing.current || event.isComposing) return;
@@ -69,12 +94,19 @@ export const Keyboard = () => {
       }
 
       pressedKeys.current.add(code);
+
+      // Learn character mappings for paste feature
+      learnFromKeyEvent(event);
+
       await handleKeyEvent({ type: 'keydown', code });
     }
 
     // Key up event
     async function handleKeyUp(event: KeyboardEvent): Promise<void> {
-      if (!isKeyboardEnabled) return;
+      // When capture is disabled (dialog open), let browser handle events naturally
+      if (!shouldCaptureRef.current) {
+        return;
+      }
 
       if (isComposing.current || event.isComposing) return;
 
@@ -161,7 +193,7 @@ export const Keyboard = () => {
 
       releaseKeys();
     };
-  }, [isKeyboardEnabled]);
+  }, [isKeyboardEnabled, pasteState.isOpen]);
 
   // Keyboard handler
   async function handleKeyEvent(event: { type: 'keydown' | 'keyup'; code: string }): Promise<void> {

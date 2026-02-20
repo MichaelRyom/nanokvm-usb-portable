@@ -31,7 +31,6 @@ export const SerialPort = ({ setErrMsg, onDisconnect }: SerialPortProps) => {
     try {
       const port = await navigator.serial.requestPort();
       await device.serialPort.init({ port, onDisconnect });
-
       setSerialState('connected');
     } catch (err) {
       console.log(err);
