@@ -10,6 +10,7 @@ import {
   ClipboardPasteIcon,
   KeyboardIcon,
   CommandIcon,
+  KeyRoundIcon,
   MousePointerIcon,
   MousePointer2Icon,
   ArrowUpDownIcon,
@@ -38,6 +39,7 @@ import { Scale } from './video/scale';
 import { Device } from './video/device';
 import { pasteText } from './keyboard/paste';
 import { ShortcutsContent } from './keyboard/shortcuts';
+import { LoginHelper } from './keyboard/login-helper';
 import { Style } from './mouse/style';
 import { Mode } from './mouse/mode';
 import { Direction } from './mouse/direction';
@@ -57,6 +59,7 @@ const ITEM_ICONS: Record<SubMenuItemId, React.ReactNode> = {
   'video.device': <VideoIcon size={18} />,
   'keyboard.paste': <ClipboardIcon size={18} />,
   'keyboard.pasteDialog': <ClipboardPasteIcon size={18} />,
+  'keyboard.loginHelper': <KeyRoundIcon size={18} />,
   'keyboard.virtualKeyboard': <KeyboardIcon size={18} />,
   'keyboard.shortcuts': <CommandIcon size={18} />,
   'mouse.style': <MousePointerIcon size={18} />,
@@ -172,6 +175,20 @@ export const PromotedSubMenuItem: React.FC<PromotedSubMenuItemProps> = ({ itemId
           {icon}
         </div>
       </MenuTooltip>
+    );
+  }
+  
+  // Special handling for login helper - render modal directly (no popover)
+  if (itemId === 'keyboard.loginHelper') {
+    return (
+      <>
+        <MenuTooltip title={label}>
+          <div className={buttonClass} onClick={() => setIsOpen(true)}>
+            {icon}
+          </div>
+        </MenuTooltip>
+        <LoginHelper externalOpen={isOpen} onExternalClose={() => setIsOpen(false)} />
+      </>
     );
   }
   

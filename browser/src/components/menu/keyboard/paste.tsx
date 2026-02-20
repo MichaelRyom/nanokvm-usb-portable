@@ -37,13 +37,30 @@ export async function pasteText(text: string, layoutId: string = 'auto'): Promis
 
     console.log(`Char '${char}' -> code: 0x${mapping.code.toString(16)}, modifier: ${modifier}`);
 
-    // Key down
-    const keys = [modifier, 0, mapping.code, 0, 0, 0, 0, 0];
-    await device.sendKeyboardData(keys);
+    // For modified keys (Shift/AltGr), press modifier first, then key
+    // This is more compatible with Windows login screen
+    if (modifier !== 0) {
+      // Press modifier first
+      await device.sendKeyboardData([modifier, 0, 0, 0, 0, 0, 0, 0]);
+      await new Promise((r) => setTimeout(r, 20));
+    }
+    
+    // Press key (with modifier held)
+    await device.sendKeyboardData([modifier, 0, mapping.code, 0, 0, 0, 0, 0]);
     await new Promise((r) => setTimeout(r, 50));
 
-    // Key up
+    // Release key (modifier still held)
+    if (modifier !== 0) {
+      await device.sendKeyboardData([modifier, 0, 0, 0, 0, 0, 0, 0]);
+      await new Promise((r) => setTimeout(r, 15));
+    }
+    
+    // Release modifier
     await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
+    if (mapping.altGr) {
+      await new Promise((r) => setTimeout(r, 20));
+      await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
+    }
     await new Promise((r) => setTimeout(r, 30));
   }
 }

@@ -8,6 +8,7 @@ import { menuConfigAtom } from '@/jotai/device';
 import type { KeyboardSubItemId } from '@/libs/menu-config';
 
 import { MenuTooltip } from '../menu-tooltip';
+import { LoginHelper } from './login-helper.tsx';
 import { Paste } from './paste.tsx';
 import { PasteWithDialog } from './paste-dialog.tsx';
 import { Shortcuts } from './shortcuts';
@@ -16,6 +17,7 @@ import { VirtualKeyboard } from './virtual-keyboard.tsx';
 const SUB_COMPONENTS: Record<KeyboardSubItemId, React.FC> = {
   'keyboard.paste': Paste,
   'keyboard.pasteDialog': PasteWithDialog,
+  'keyboard.loginHelper': LoginHelper,
   'keyboard.virtualKeyboard': VirtualKeyboard,
   'keyboard.shortcuts': Shortcuts,
 };

@@ -109,14 +109,29 @@ export const PasteDialog = () => {
 
         console.log(`Paste char '${char}' code=0x${mapping.code.toString(16)} mod=0x${modifier.toString(16)} shift=${!!mapping.shift} altGr=${!!mapping.altGr}`);
 
-        // Key down
+        // For modified keys (Shift/AltGr), press modifier first, then key
+        // This is more compatible with Windows login screen and other sensitive inputs
+        if (modifier !== 0) {
+          // Press modifier first
+          await device.sendKeyboardData([modifier, 0, 0, 0, 0, 0, 0, 0]);
+          await new Promise((r) => setTimeout(r, Math.max(keyDownDelay, 20)));
+        }
+        
+        // Press key (with modifier held)
         await device.sendKeyboardData([modifier, 0, mapping.code, 0, 0, 0, 0, 0]);
         await new Promise((r) => setTimeout(r, keyDownDelay));
 
-        // Key up - for AltGr chars, add extra delay and send release twice
+        // Release key (modifier still held)
+        if (modifier !== 0) {
+          await device.sendKeyboardData([modifier, 0, 0, 0, 0, 0, 0, 0]);
+          await new Promise((r) => setTimeout(r, Math.max(keyUpDelay, 15)));
+        }
+        
+        // Release modifier
         await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
         if (mapping.altGr) {
-          await new Promise((r) => setTimeout(r, keyUpDelay * 2));
+          // Extra release for AltGr
+          await new Promise((r) => setTimeout(r, keyUpDelay));
           await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
         }
         await new Promise((r) => setTimeout(r, keyUpDelay));

@@ -12,7 +12,7 @@ export type MenuItemId =
 
 // Submenu item identifiers (grouped by parent)
 export type VideoSubItemId = 'video.resolution' | 'video.rotation' | 'video.scale' | 'video.device';
-export type KeyboardSubItemId = 'keyboard.paste' | 'keyboard.pasteDialog' | 'keyboard.virtualKeyboard' | 'keyboard.shortcuts';
+export type KeyboardSubItemId = 'keyboard.paste' | 'keyboard.pasteDialog' | 'keyboard.loginHelper' | 'keyboard.virtualKeyboard' | 'keyboard.shortcuts';
 export type MouseSubItemId = 'mouse.style' | 'mouse.mode' | 'mouse.direction' | 'mouse.speed' | 'mouse.jiggler';
 export type SettingsSubItemId = 'settings.language' | 'settings.keyboardLayout' | 'settings.pasteSpeed' | 'settings.tooltips' | 'settings.menuCustomization';
 
@@ -46,7 +46,7 @@ export const PROTECTED_SUB_ITEMS: SubMenuItemId[] = ['settings.menuCustomization
 
 // Default submenu configurations
 export const DEFAULT_VIDEO_SUB_ITEMS: VideoSubItemId[] = ['video.resolution', 'video.rotation', 'video.scale', 'video.device'];
-export const DEFAULT_KEYBOARD_SUB_ITEMS: KeyboardSubItemId[] = ['keyboard.paste', 'keyboard.pasteDialog', 'keyboard.virtualKeyboard', 'keyboard.shortcuts'];
+export const DEFAULT_KEYBOARD_SUB_ITEMS: KeyboardSubItemId[] = ['keyboard.paste', 'keyboard.pasteDialog', 'keyboard.loginHelper', 'keyboard.virtualKeyboard', 'keyboard.shortcuts'];
 export const DEFAULT_MOUSE_SUB_ITEMS: MouseSubItemId[] = ['mouse.style', 'mouse.mode', 'mouse.direction', 'mouse.speed', 'mouse.jiggler'];
 export const DEFAULT_SETTINGS_SUB_ITEMS: SettingsSubItemId[] = ['settings.language', 'settings.keyboardLayout', 'settings.pasteSpeed', 'settings.tooltips', 'settings.menuCustomization'];
 
@@ -114,6 +114,7 @@ export const SUB_MENU_ITEMS_META: SubMenuItemMeta[] = [
   // Keyboard submenu
   { id: 'keyboard.paste', parent: 'keyboard', labelKey: 'keyboard.paste', defaultLabel: 'Paste', isProtected: false, requiresSerial: true },
   { id: 'keyboard.pasteDialog', parent: 'keyboard', labelKey: 'keyboard.pasteWithDialog', defaultLabel: 'Paste with Preview', isProtected: false, requiresSerial: true },
+  { id: 'keyboard.loginHelper', parent: 'keyboard', labelKey: 'keyboard.loginHelper.title', defaultLabel: 'Login Helper', isProtected: false, requiresSerial: true },
   { id: 'keyboard.virtualKeyboard', parent: 'keyboard', labelKey: 'keyboard.virtualKeyboard', defaultLabel: 'Virtual Keyboard', isProtected: false, requiresSerial: true },
   { id: 'keyboard.shortcuts', parent: 'keyboard', labelKey: 'keyboard.shortcut.title', defaultLabel: 'Shortcuts', isProtected: false, requiresSerial: true },
   // Mouse submenu
