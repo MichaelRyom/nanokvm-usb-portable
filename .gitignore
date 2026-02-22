@@ -13,3 +13,4 @@
 portable/target/
 browser/dist/
 node_modules/
+dist/
