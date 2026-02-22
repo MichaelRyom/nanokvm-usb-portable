@@ -52,11 +52,25 @@ This will:
 
 Press `Ctrl+C` to stop.
 
-> **Linux note:** If you get a serial port permission error, add yourself to the `dialout` group:
+> **Linux notes:**
+>
+> If you get a serial port permission error, add yourself to the `dialout` group:
 > ```bash
 > sudo usermod -a -G dialout $USER
 > ```
 > Then log out and back in.
+>
+> **brltty conflict:** The `brltty` screen reader (pre-installed on many Linux distros) claims the NanoKVM's CH340 USB-serial chip, preventing serial port access. Braille display support is not compatible with this project. If you have `brltty` installed, disable or remove it:
+> ```bash
+> # Option A: disable (recommended)
+> sudo systemctl stop brltty-udev.service
+> sudo systemctl mask brltty-udev.service
+> sudo systemctl mask brltty.path
+>
+> # Option B: remove entirely
+> sudo apt remove brltty
+> ```
+> Then unplug and replug the NanoKVM.
 
 ## Project Structure
 
