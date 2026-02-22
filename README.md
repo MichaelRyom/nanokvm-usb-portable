@@ -1,71 +1,74 @@
-# NanoKVM-USB
+# NanoKVM-USB-Portable
 
-<div align="center">
+A single-binary portable application for the [NanoKVM-USB](https://github.com/sipeed/NanoKVM-USB) hardware KVM device. Run it, and it opens a Chromium window — no web server setup, no Electron app, no installation required.
 
-![NanoKVM-USB](https://wiki.sipeed.com/hardware/assets/NanoKVM/usb/NanoKVM-USB.png)
+## What is this?
 
-</div>
+This project wraps the [NanoKVM-USB browser UI](https://github.com/sipeed/NanoKVM-USB/tree/main/browser) into a self-contained Rust binary. It embeds the built frontend assets, serves them on `localhost:8080`, and auto-launches a Chromium-based browser in app mode.
 
-> Finger-sized 4K USB KVM for Server/SBCs
+The browser UI has been extended with several features not present in the upstream project:
 
-## Introduction
+- **Customizable menu system** — reorder, hide, and promote submenu items to the top-level menu
+- **Screenshot capture** — save the current video frame
+- **Paste with preview dialog** — confirm before sending clipboard text to the target
+- **Login helper** — quickly type credentials with modifier key support for Windows login screens
+- **Target keyboard layout selection** — match the keyboard layout of the remote machine
+- **Adjustable paste speed** — control typing delay for paste operations
+- **Toggleable tooltips** — show/hide menu tooltips
 
-The NanoKVM-USB is a convenient tool for operations and multi-device collaboration. It allows you to perform maintenance tasks without the need for a keyboard, mouse, or monitor. Using just a single computer and no additional software downloads, you can start graphical operations directly through the Chrome browser.
+## Requirements
 
-NanoKVM-USB captures HDMI video signals and transmits them to the host via USB 3.0. Unlike typical USB capture cards, NanoKVM-USB also captures keyboard and mouse input from the host and sends it to the target machine in real-time, eliminating the need for traditional screen and peripheral connections. It also supports HDMI loop-out, with a maximum resolution of 4K@30Hz, making it easy to connect to a large display.
+- A **NanoKVM-USB** device connected via USB 3.0
+- A **Chromium-based browser** (Chrome, Edge, or Chromium) — required for WebSerial support
+- **Rust** toolchain (for building from source)
+- **Node.js** (for building the browser frontend)
 
-![wiring](https://wiki.sipeed.com/hardware/assets/NanoKVM/usb/wiring.png)
-<br>
+## Building
 
-## Technical Specifications
+```bash
+# Build the browser frontend
+cd browser
+npm install
+npm run build
+cd ..
 
-| | NanoKVM-USB | Mini-KVM | KIWI-KVM |
-| --- | :---: | :---: | :---: |
-| HDMI Input | 4K@30fps / Pro 4K@60fps  | 1080P@60fps | 4K@30fps |
-| HDMI Loopout | 4K@30fps / Pro 4K@60fps | None | None |
-| USB Capture | 1080P@60fps / Pro 4K@60fps | 1080P@60fps | 1080P@60fps |
-| USB Interface | USB3.0 | USB2.0 | USB3.0 |
-| USB Switch | Yes | Yes | No |
-| Keyboard & Mouse | Yes | Yes | Yes |
-| Clipboard | Yes | Yes | Yes |
-| Software | No setup needed, works in Chrome | Host App required | Host App required |
-| Latency | 50-100ms | 50-100ms | 50-100ms |
-| Volume | 57x25x23mm | 61x13.5x53mm | 80x80x10mm |
-| Shell Material | Aluminum Alloy | Aluminum Alloy | Plastics |
-| Color | Black / Blue / Red | Black | Black |
-| Price | `$39.9/$49.9`, Pro `$59.9/$69.9` | `$89 / $109` | `$69 / $99` |
+# Build the portable binary
+cd portable
+cargo build --release
+```
 
-<br>
+The binary will be at `portable/target/release/nanokvm-usb-portable`.
 
-![interface](https://wiki.sipeed.com/hardware/assets/NanoKVM/usb/interface.jpg)
+## Usage
 
-> **Note:** For the best experience, please use a USB 3.0 cable to connect the device.
+```bash
+./nanokvm-usb-portable
+```
 
-## Resources
+This will:
+1. Start a local web server on `http://localhost:8080`
+2. Auto-launch Chrome/Edge/Chromium in app mode
+3. If no Chromium-based browser is found, it prints the URL for you to open manually
 
-We offer two versions of the application: [Browser](https://github.com/sipeed/NanoKVM-USB/tree/main/browser) and [Desktop](https://github.com/sipeed/NanoKVM-USB/tree/main/desktop). Both are available on the [Releases page](https://github.com/sipeed/NanoKVM-USB/releases).
+Press `Ctrl+C` to stop.
 
-### Browser Version
+> **Linux note:** If you get a serial port permission error, add yourself to the `dialout` group:
+> ```bash
+> sudo usermod -a -G dialout $USER
+> ```
+> Then log out and back in.
 
-Access our online service at [usbkvm.sipeed.com](https://usbkvm.sipeed.com).
+## Project Structure
 
-For self-deployment, download the `NanoKVM-USB-xxx-browser.zip` and serve it. Refer to the [Deployment Guide](https://wiki.sipeed.com/hardware/en/kvm/NanoKVM_USB/development.html) for details. If you are using Docker, simply run `docker-compose up -d`.
+```
+browser/    # NanoKVM-USB browser UI (modified from upstream)
+portable/   # Rust binary that embeds and serves the browser build
+```
 
+## Upstream
 
-> Please use the desktop Chrome browser.
+This project is based on [sipeed/NanoKVM-USB](https://github.com/sipeed/NanoKVM-USB). See that repository for hardware documentation, technical specifications, and purchasing information.
 
-### Desktop Version
+## License
 
-Download the appropriate package for your operating system and install it.
-
-> For Linux users, a permission error may occur when connecting to the serial port.  
-> To resolve this run the commands below matching your system, then log out and log back in or restart your system.
-> #### Debian
-> `sudo usermod -a -G dialout $USER`
-> #### Arch
-> `sudo usermod -a -G uucp $USER`
-## Where to Buy
-
-* [AliExpress Store]() (To be released)
-* [Taobao Store]() (To be released)
-* [Pre-sale Page](https://sipeed.com/nanokvm/usb)
+GPL-3.0 — same as the upstream project.
