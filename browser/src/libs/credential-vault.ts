@@ -2,6 +2,7 @@ import { generateSalt, deriveKey, encrypt, decrypt } from '@/libs/crypto';
 
 const VAULT_STORAGE_KEY = 'nanokvm-usb-credential-vault';
 const AUTO_LOCK_KEY = 'nanokvm-usb-vault-auto-lock';
+const HIDE_TOTP_KEY = 'nanokvm-usb-vault-hide-totp';
 const DEFAULT_AUTO_LOCK_MINUTES = 5;
 
 // --- Types ---
@@ -15,6 +16,8 @@ export interface Credential {
   totpPeriod?: number;   // default 30
   totpDigits?: number;   // default 6
   notes?: string;
+  tags?: string[];
+  favorite?: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -55,6 +58,14 @@ export function getAutoLockMinutes(): number {
 
 export function setAutoLockMinutes(minutes: number): void {
   localStorage.setItem(AUTO_LOCK_KEY, String(Math.max(0, Math.floor(minutes))));
+}
+
+export function getHideTOTP(): boolean {
+  return localStorage.getItem(HIDE_TOTP_KEY) !== 'false'; // default true
+}
+
+export function setHideTOTP(hide: boolean): void {
+  localStorage.setItem(HIDE_TOTP_KEY, hide ? 'true' : 'false');
 }
 
 function checkAutoLock(): boolean {
@@ -138,7 +149,26 @@ export async function unlock(masterPassword: string): Promise<boolean> {
 export function getCredentials(): Credential[] {
   if (!isUnlocked()) return [];
   touchActivity();
-  return [...(cachedCredentials ?? [])];
+  // Sort: favorites first, then alphabetically by name
+  return [...(cachedCredentials ?? [])].sort((a, b) => {
+    if (a.favorite && !b.favorite) return -1;
+    if (!a.favorite && b.favorite) return 1;
+    return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+  });
+}
+
+export async function toggleFavorite(id: string): Promise<boolean> {
+  if (!isUnlocked() || !cachedCredentials) return false;
+  const idx = cachedCredentials.findIndex((c) => c.id === id);
+  if (idx === -1) return false;
+  cachedCredentials[idx] = {
+    ...cachedCredentials[idx],
+    favorite: !cachedCredentials[idx].favorite,
+    updatedAt: Date.now(),
+  };
+  await persistCredentials();
+  touchActivity();
+  return true;
 }
 
 async function persistCredentials(): Promise<void> {

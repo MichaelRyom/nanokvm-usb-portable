@@ -40,7 +40,10 @@ export const Menu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [isVertical, setIsVertical] = useState(storage.getMenuOrientation() === 'vertical');
   const [menuBounds, setMenuBounds] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
-  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [dragPosition, setDragPosition] = useState(() => {
+    const saved = storage.getMenuPosition();
+    return saved ?? { x: 0, y: 0 };
+  });
 
   const nodeRef = useRef<HTMLDivElement | null>(null);
 
@@ -145,7 +148,10 @@ export const Menu = () => {
       bounds={menuBounds}
       handle="strong"
       position={dragPosition}
-      onDrag={(_, data) => setDragPosition({ x: data.x, y: data.y })}
+      onDrag={(_, data) => {
+        setDragPosition({ x: data.x, y: data.y });
+        storage.setMenuPosition(data.x, data.y);
+      }}
     >
       <div
         ref={nodeRef}

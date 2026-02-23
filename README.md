@@ -53,9 +53,9 @@ This will:
 
 Output:
 ```
-dist/v1.6.0/
-  nanokvm-usb-portable-v1.6.0-linux-x86_64
-  nanokvm-usb-portable-v1.6.0-windows-x86_64.exe
+dist/v1.7.0/
+  nanokvm-usb-portable-v1.7.0-linux-x86_64
+  nanokvm-usb-portable-v1.7.0-windows-x86_64.exe
 ```
 
 ## Usage
@@ -108,6 +108,14 @@ portable/   # Rust binary that embeds and serves the browser build
 ```
 
 ## Changelog
+
+### v1.7.0
+- Add tags for credential vault items — categorize entries with custom tags
+- Add tag autocomplete — previously used tags appear as suggestions when editing
+- Add tag filter bar below search for quick filtering by tag
+- Improve vault item layout — aligned Copy/Type buttons across all field rows
+- Move Copy button before Type button for better workflow
+- Improve settings layout — left-aligned labels with right-aligned controls
 
 ### v1.6.0
 - Add built-in credential vault — AES-GCM encrypted, PBKDF2-protected local password store

@@ -225,3 +225,21 @@ export function setMenuConfig(config: MenuConfig): void {
   const validated = validateMenuConfig(config);
   localStorage.setItem(MENU_CONFIG_KEY, JSON.stringify(validated));
 }
+
+const MENU_POSITION_KEY = 'nanokvm-usb-menu-position';
+
+export function getMenuPosition(): { x: number; y: number } | null {
+  const pos = localStorage.getItem(MENU_POSITION_KEY);
+  if (!pos) return null;
+  try {
+    const parsed = JSON.parse(pos) as { x: number; y: number };
+    if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+      return parsed;
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+export function setMenuPosition(x: number, y: number): void {
+  localStorage.setItem(MENU_POSITION_KEY, JSON.stringify({ x, y }));
+}
