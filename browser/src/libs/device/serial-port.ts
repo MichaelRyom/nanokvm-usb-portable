@@ -103,6 +103,7 @@ export class SerialPort {
     try {
       await this.writer.write(new Uint8Array(data));
     } catch (err) {
+      console.error('Serial write error:', err);
       if (isDisconnectError(err)) {
         this.handleDisconnect();
         throw new Error('Device disconnected');

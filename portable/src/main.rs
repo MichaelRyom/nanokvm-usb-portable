@@ -48,30 +48,9 @@ async fn serve_asset(req: Request<Body>) -> Response<Body> {
 /// When app_mode is true, opens in a minimal window without browser UI (no extensions).
 /// When false, opens as a normal tab with full browser chrome (extensions available).
 fn open_chromium(url: &str, app_mode: bool) -> bool {
-    #[cfg(target_os = "windows")]
-    let browsers: &[&str] = &[
-        "msedge",  // Edge is pre-installed on Windows 10/11
-        "chrome",
-        "chromium",
-    ];
+    let browsers = find_chromium_browsers();
 
-    #[cfg(target_os = "linux")]
-    let browsers: &[&str] = &[
-        "google-chrome",
-        "google-chrome-stable",
-        "chromium",
-        "chromium-browser",
-        "microsoft-edge",
-    ];
-
-    #[cfg(target_os = "macos")]
-    let browsers: &[&str] = &[
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-        "/Applications/Chromium.app/Contents/MacOS/Chromium",
-        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-    ];
-
-    for browser in browsers {
+    for browser in &browsers {
         let mut cmd = Command::new(browser);
         if app_mode {
             cmd.arg(format!("--app={}", url));
@@ -86,6 +65,74 @@ fn open_chromium(url: &str, app_mode: bool) -> bool {
     }
 
     false
+}
+
+/// Find Chromium-based browsers on the current platform.
+/// On Windows, resolves full paths via environment variables since browsers
+/// are not typically in PATH.
+#[cfg(target_os = "windows")]
+fn find_chromium_browsers() -> Vec<String> {
+    use std::path::PathBuf;
+
+    let mut candidates = Vec::new();
+
+    // (env_var, relative_path) pairs for common browser install locations
+    let search_paths: &[(&str, &str)] = &[
+        // Edge (per-system installs)
+        ("PROGRAMFILES(X86)", r"Microsoft\Edge\Application\msedge.exe"),
+        ("PROGRAMFILES", r"Microsoft\Edge\Application\msedge.exe"),
+        // Edge (per-user install)
+        ("LOCALAPPDATA", r"Microsoft\Edge\Application\msedge.exe"),
+        // Chrome (per-system installs)
+        ("PROGRAMFILES", r"Google\Chrome\Application\chrome.exe"),
+        ("PROGRAMFILES(X86)", r"Google\Chrome\Application\chrome.exe"),
+        // Chrome (per-user install)
+        ("LOCALAPPDATA", r"Google\Chrome\Application\chrome.exe"),
+        // Chromium (per-user install)
+        ("LOCALAPPDATA", r"Chromium\Application\chrome.exe"),
+    ];
+
+    for (env_var, rel_path) in search_paths {
+        if let Ok(base) = std::env::var(env_var) {
+            let full_path = PathBuf::from(&base).join(rel_path);
+            if full_path.exists() {
+                candidates.push(full_path.to_string_lossy().into_owned());
+            }
+        }
+    }
+
+    // Also try bare names in case the user has added them to PATH
+    for name in &["msedge", "chrome", "chromium"] {
+        candidates.push(name.to_string());
+    }
+
+    candidates
+}
+
+#[cfg(target_os = "linux")]
+fn find_chromium_browsers() -> Vec<String> {
+    [
+        "google-chrome",
+        "google-chrome-stable",
+        "chromium",
+        "chromium-browser",
+        "microsoft-edge",
+    ]
+    .iter()
+    .map(|s| s.to_string())
+    .collect()
+}
+
+#[cfg(target_os = "macos")]
+fn find_chromium_browsers() -> Vec<String> {
+    [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/Applications/Chromium.app/Contents/MacOS/Chromium",
+        "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    ]
+    .iter()
+    .map(|s| s.to_string())
+    .collect()
 }
 
 /// Linux-only: check for common serial port issues and exit with guidance if found.
@@ -171,6 +218,7 @@ fn print_help() {
     println!("  --no-browser   Start server only, don't launch a browser");
     println!("  --browser      Open as a normal browser tab (enables extensions)");
     println!("                 Default is app mode (clean window, no extensions)");
+    println!("  --debug        Enable verbose debug logging in the browser console");
     println!("  --help         Show this help message");
 }
 
@@ -185,6 +233,7 @@ async fn main() {
 
     let no_browser = args.iter().any(|a| a == "--no-browser");
     let tab_mode = args.iter().any(|a| a == "--browser");
+    let debug_mode = args.iter().any(|a| a == "--debug");
 
     #[cfg(target_os = "linux")]
     check_linux_serial_setup();
@@ -192,7 +241,11 @@ async fn main() {
     let app = Router::new().fallback(get(serve_asset));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-    let url = "http://localhost:8080";
+    let url = if debug_mode {
+        "http://localhost:8080?debug=true"
+    } else {
+        "http://localhost:8080"
+    };
 
     println!("NanoKVM-USB-Portable running at {}", url);
     println!("Press Ctrl+C to stop");
