@@ -51,6 +51,7 @@ import { Language } from './settings/language';
 import { KeyboardLayout } from './settings/keyboard-layout';
 import { PasteSpeedSetting } from './settings/paste-speed';
 import { TooltipsSetting } from './settings/tooltips';
+import { CrispRenderingSetting } from './settings/crisp-rendering';
 import { MenuCustomization } from './settings/menu-customization';
 
 // Icon mapping for each submenu item
@@ -74,6 +75,7 @@ const ITEM_ICONS: Record<SubMenuItemId, React.ReactNode> = {
   'settings.keyboardLayout': <TypeIcon size={18} />,
   'settings.pasteSpeed': <TimerIcon size={18} />,
   'settings.tooltips': <MessageSquareIcon size={18} />,
+  'settings.crispRendering': <MonitorIcon size={18} />,
   'settings.menuCustomization': <LayoutGridIcon size={18} />,
 };
 
@@ -93,6 +95,7 @@ const POPOVER_COMPONENTS: Partial<Record<SubMenuItemId, React.FC>> = {
   'settings.keyboardLayout': KeyboardLayout,
   'settings.pasteSpeed': PasteSpeedSetting,
   'settings.tooltips': TooltipsSetting,
+  'settings.crispRendering': CrispRenderingSetting,
   'settings.menuCustomization': MenuCustomization,
 };
 

@@ -14,7 +14,7 @@ export type MenuItemId =
 export type VideoSubItemId = 'video.resolution' | 'video.rotation' | 'video.scale' | 'video.device';
 export type KeyboardSubItemId = 'keyboard.paste' | 'keyboard.pasteDialog' | 'keyboard.loginHelper' | 'keyboard.credentialVault' | 'keyboard.virtualKeyboard' | 'keyboard.shortcuts';
 export type MouseSubItemId = 'mouse.style' | 'mouse.mode' | 'mouse.direction' | 'mouse.speed' | 'mouse.jiggler';
-export type SettingsSubItemId = 'settings.language' | 'settings.keyboardLayout' | 'settings.pasteSpeed' | 'settings.tooltips' | 'settings.menuCustomization';
+export type SettingsSubItemId = 'settings.language' | 'settings.keyboardLayout' | 'settings.pasteSpeed' | 'settings.tooltips' | 'settings.crispRendering' | 'settings.menuCustomization';
 
 export type SubMenuItemId = VideoSubItemId | KeyboardSubItemId | MouseSubItemId | SettingsSubItemId;
 
@@ -48,7 +48,7 @@ export const PROTECTED_SUB_ITEMS: SubMenuItemId[] = ['settings.menuCustomization
 export const DEFAULT_VIDEO_SUB_ITEMS: VideoSubItemId[] = ['video.resolution', 'video.rotation', 'video.scale', 'video.device'];
 export const DEFAULT_KEYBOARD_SUB_ITEMS: KeyboardSubItemId[] = ['keyboard.paste', 'keyboard.pasteDialog', 'keyboard.loginHelper', 'keyboard.credentialVault', 'keyboard.virtualKeyboard', 'keyboard.shortcuts'];
 export const DEFAULT_MOUSE_SUB_ITEMS: MouseSubItemId[] = ['mouse.style', 'mouse.mode', 'mouse.direction', 'mouse.speed', 'mouse.jiggler'];
-export const DEFAULT_SETTINGS_SUB_ITEMS: SettingsSubItemId[] = ['settings.language', 'settings.keyboardLayout', 'settings.pasteSpeed', 'settings.tooltips', 'settings.menuCustomization'];
+export const DEFAULT_SETTINGS_SUB_ITEMS: SettingsSubItemId[] = ['settings.language', 'settings.keyboardLayout', 'settings.pasteSpeed', 'settings.tooltips', 'settings.crispRendering', 'settings.menuCustomization'];
 
 // Default menu configuration
 export const DEFAULT_MENU_CONFIG: MenuConfig = {
@@ -129,6 +129,7 @@ export const SUB_MENU_ITEMS_META: SubMenuItemMeta[] = [
   { id: 'settings.keyboardLayout', parent: 'settings', labelKey: 'settings.keyboardLayout.title', defaultLabel: 'Target Keyboard', isProtected: false, requiresSerial: false },
   { id: 'settings.pasteSpeed', parent: 'settings', labelKey: 'settings.pasteSpeed', defaultLabel: 'Paste Speed', isProtected: false, requiresSerial: false },
   { id: 'settings.tooltips', parent: 'settings', labelKey: 'settings.tooltips', defaultLabel: 'Show Tooltips', isProtected: false, requiresSerial: false },
+  { id: 'settings.crispRendering', parent: 'settings', labelKey: 'settings.crispRendering', defaultLabel: 'Sharp Rendering', isProtected: false, requiresSerial: false },
   { id: 'settings.menuCustomization', parent: 'settings', labelKey: 'settings.customizeMenu', defaultLabel: 'Customize Menu', isProtected: true, requiresSerial: false },
 ];
 

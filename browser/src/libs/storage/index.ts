@@ -226,6 +226,20 @@ export function setMenuConfig(config: MenuConfig): void {
   localStorage.setItem(MENU_CONFIG_KEY, JSON.stringify(validated));
 }
 
+const RENDERING_MODE_KEY = 'nanokvm-usb-rendering-mode';
+
+export type RenderingMode = 'auto' | 'pixelated';
+
+export function getRenderingMode(): RenderingMode {
+  const value = localStorage.getItem(RENDERING_MODE_KEY);
+  if (value === 'auto' || value === 'pixelated') return value;
+  return 'auto'; // Default to smooth
+}
+
+export function setRenderingMode(mode: RenderingMode): void {
+  localStorage.setItem(RENDERING_MODE_KEY, mode);
+}
+
 const MENU_POSITION_KEY = 'nanokvm-usb-menu-position';
 
 export function getMenuPosition(): { x: number; y: number } | null {

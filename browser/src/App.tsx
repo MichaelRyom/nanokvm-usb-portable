@@ -11,6 +11,7 @@ import { Menu } from '@/components/menu';
 import { Mouse } from '@/components/mouse';
 import { PasteDialog, pasteStateAtom } from '@/components/paste-dialog';
 import { VirtualKeyboard } from '@/components/virtual-keyboard';
+import { renderingModeAtom } from '@/components/menu/settings/crisp-rendering';
 import {
   resolutionAtom,
   serialStateAtom,
@@ -36,6 +37,7 @@ const App = () => {
   const serialState = useAtomValue(serialStateAtom);
   const isKeyboardEnable = useAtomValue(isKeyboardEnableAtom);
   const targetLayout = useAtomValue(targetKeyboardLayoutAtom);
+  const renderingMode = useAtomValue(renderingModeAtom);
   const setPasteState = useSetAtom(pasteStateAtom);
   const setResolution = useSetAtom(resolutionAtom);
   const [videoRotation, setVideoRotation] = useAtom(videoRotationAtom);
@@ -103,7 +105,8 @@ const App = () => {
     const baseStyle = {
       transformOrigin: 'center',
       maxWidth: shouldSwapDimensions ? '100vh' : '100%',
-      maxHeight: shouldSwapDimensions ? '100vw' : '100%'
+      maxHeight: shouldSwapDimensions ? '100vw' : '100%',
+      imageRendering: renderingMode
     };
 
     if (videoScale === 0) {
@@ -121,7 +124,7 @@ const App = () => {
       objectFit: 'scale-down',
       transform: `scale(${videoScale}) rotate(${videoRotation}deg)`
     };
-  }, [videoScale, videoRotation, shouldSwapDimensions]);
+  }, [videoScale, videoRotation, shouldSwapDimensions, renderingMode]);
 
   function initResolution() {
     const resolution = storage.getVideoResolution();

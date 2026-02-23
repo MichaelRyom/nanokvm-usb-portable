@@ -9,6 +9,7 @@ import type { SettingsSubItemId } from '@/libs/menu-config';
 import { MenuTooltip } from '../menu-tooltip';
 import { KeyboardLayout } from './keyboard-layout.tsx';
 import { Language } from './language.tsx';
+import { CrispRenderingSetting } from './crisp-rendering.tsx';
 import { MenuCustomization } from './menu-customization.tsx';
 import { PasteSpeedSetting } from './paste-speed.tsx';
 import { TooltipsSetting } from './tooltips.tsx';
@@ -18,6 +19,7 @@ const SUB_COMPONENTS: Record<SettingsSubItemId, React.FC> = {
   'settings.keyboardLayout': KeyboardLayout,
   'settings.pasteSpeed': PasteSpeedSetting,
   'settings.tooltips': TooltipsSetting,
+  'settings.crispRendering': CrispRenderingSetting,
   'settings.menuCustomization': MenuCustomization,
 };
 

@@ -16,6 +16,7 @@ The browser UI has been extended with several features not present in the upstre
 - **Target keyboard layout selection** — match the keyboard layout of the remote machine
 - **Adjustable paste speed** — control typing delay for paste operations
 - **Toggleable tooltips** — show/hide menu tooltips
+- **Sharp rendering toggle** — pixel-perfect video scaling for crisp text (enabled by default)
 
 ## Requirements
 
@@ -119,6 +120,7 @@ portable/   # Rust binary that embeds and serves the browser build
 - Add tags for credential vault items — categorize entries with custom tags
 - Add tag autocomplete — previously used tags appear as suggestions when editing
 - Add tag filter bar below search for quick filtering by tag
+- Add sharp rendering toggle — pixel-perfect video scaling for crisp text (default on)
 - Add app shortcuts reference section to shortcuts panel (Ctrl+Shift+Insert for paste)
 - Improve vault item layout — aligned Copy/Type buttons across all field rows
 - Move Copy button before Type button for better workflow
