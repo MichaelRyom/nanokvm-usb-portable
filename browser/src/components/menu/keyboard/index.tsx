@@ -8,6 +8,7 @@ import { menuConfigAtom } from '@/jotai/device';
 import type { KeyboardSubItemId } from '@/libs/menu-config';
 
 import { MenuTooltip } from '../menu-tooltip';
+import { CredentialVault } from './credential-vault.tsx';
 import { LoginHelper } from './login-helper.tsx';
 import { Paste } from './paste.tsx';
 import { PasteWithDialog } from './paste-dialog.tsx';
@@ -18,6 +19,7 @@ const SUB_COMPONENTS: Record<KeyboardSubItemId, React.FC> = {
   'keyboard.paste': Paste,
   'keyboard.pasteDialog': PasteWithDialog,
   'keyboard.loginHelper': LoginHelper,
+  'keyboard.credentialVault': CredentialVault,
   'keyboard.virtualKeyboard': VirtualKeyboard,
   'keyboard.shortcuts': Shortcuts,
 };

@@ -11,6 +11,7 @@ import {
   KeyboardIcon,
   CommandIcon,
   KeyRoundIcon,
+  ShieldIcon,
   MousePointerIcon,
   MousePointer2Icon,
   ArrowUpDownIcon,
@@ -39,6 +40,7 @@ import { Scale } from './video/scale';
 import { Device } from './video/device';
 import { pasteText } from './keyboard/paste';
 import { ShortcutsContent } from './keyboard/shortcuts';
+import { CredentialVault } from './keyboard/credential-vault';
 import { LoginHelper } from './keyboard/login-helper';
 import { Style } from './mouse/style';
 import { Mode } from './mouse/mode';
@@ -60,6 +62,7 @@ const ITEM_ICONS: Record<SubMenuItemId, React.ReactNode> = {
   'keyboard.paste': <ClipboardIcon size={18} />,
   'keyboard.pasteDialog': <ClipboardPasteIcon size={18} />,
   'keyboard.loginHelper': <KeyRoundIcon size={18} />,
+  'keyboard.credentialVault': <ShieldIcon size={18} />,
   'keyboard.virtualKeyboard': <KeyboardIcon size={18} />,
   'keyboard.shortcuts': <CommandIcon size={18} />,
   'mouse.style': <MousePointerIcon size={18} />,
@@ -188,6 +191,20 @@ export const PromotedSubMenuItem: React.FC<PromotedSubMenuItemProps> = ({ itemId
           </div>
         </MenuTooltip>
         <LoginHelper externalOpen={isOpen} onExternalClose={() => setIsOpen(false)} />
+      </>
+    );
+  }
+  
+  // Special handling for credential vault - render modal directly (no popover)
+  if (itemId === 'keyboard.credentialVault') {
+    return (
+      <>
+        <MenuTooltip title={label}>
+          <div className={buttonClass} onClick={() => setIsOpen(true)}>
+            {icon}
+          </div>
+        </MenuTooltip>
+        <CredentialVault externalOpen={isOpen} onExternalClose={() => setIsOpen(false)} />
       </>
     );
   }

@@ -73,6 +73,12 @@ export const Keyboard = () => {
         return;
       }
 
+      // Don't capture keystrokes when focus is in an input field (e.g. vault, login helper)
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
       // Skip during IME composition
       if (isComposing.current || event.isComposing) return;
 
@@ -110,6 +116,12 @@ export const Keyboard = () => {
     async function handleKeyUp(event: KeyboardEvent): Promise<void> {
       // When capture is disabled (dialog open), let browser handle events naturally
       if (!shouldCaptureRef.current) {
+        return;
+      }
+
+      // Don't capture keystrokes when focus is in an input field (e.g. vault, login helper)
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
       }
 

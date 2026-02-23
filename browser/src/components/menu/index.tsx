@@ -51,12 +51,21 @@ export const Menu = () => {
 
     // Menu starts at left: 10px, top: 10px
     // Bounds are relative to starting position
+    const maxX = window.innerWidth - elementRect.width - 10;
+    const maxY = window.innerHeight - elementRect.height - 10;
+
     setMenuBounds({
       left: -10, // Can't go past left edge
       top: -10,  // Can't go past top edge
-      right: window.innerWidth - elementRect.width - 10,
-      bottom: window.innerHeight - elementRect.height - 10
+      right: maxX,
+      bottom: maxY
     });
+
+    // Clamp current position to stay within new bounds (e.g. after exiting fullscreen)
+    setDragPosition(prev => ({
+      x: Math.max(-10, Math.min(prev.x, maxX)),
+      y: Math.max(-10, Math.min(prev.y, maxY))
+    }));
   }, []);
 
   useEffect(() => {
