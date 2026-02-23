@@ -38,7 +38,7 @@ export const Audio = () => {
 
       camera.close();
     } catch (err: any) {
-      console.log('failed to request media permissions: ', err);
+      console.error('failed to request media permissions: ', err);
     }
   }
 

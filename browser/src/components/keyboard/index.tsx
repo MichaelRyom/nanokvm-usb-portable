@@ -8,6 +8,7 @@ import { device } from '@/libs/device';
 import { KeyboardReport } from '@/libs/keyboard/keyboard.ts';
 import { isModifier } from '@/libs/keyboard/keymap.ts';
 import { learnFromKeyEvent } from '@/libs/keyboard/layouts.ts';
+import { isDebug } from '@/libs/debug.ts';
 
 interface AltGrState {
   active: boolean;
@@ -46,7 +47,11 @@ export const Keyboard = () => {
       wasCaptureDisabled.current = false;
       pressedKeys.current.clear();
       keyboardRef.current.reset();
-      console.log('Keyboard state cleared after paste dialog closed');
+      // Debug only: paste dialog close reset
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug('Keyboard state cleared after paste dialog closed');
+      }
     }
 
     // Release keys when disabling

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { pasteSpeedAtom } from '@/jotai/keyboard';
 import { device } from '@/libs/device';
 import { getLayoutById, LayoutMap } from '@/libs/keyboard/layouts';
+import { isDebug } from '@/libs/debug.ts';
 import { ModifierBits } from '@/libs/keyboard/keymap';
 
 // Paste state atom
@@ -107,7 +108,10 @@ export const PasteDialog = () => {
         if (mapping.shift) modifier |= ModifierBits.LeftShift;
         if (mapping.altGr) modifier |= ModifierBits.RightAlt;
 
-        console.log(`Paste char '${char}' code=0x${mapping.code.toString(16)} mod=0x${modifier.toString(16)} shift=${!!mapping.shift} altGr=${!!mapping.altGr}`);
+        if (isDebug()) {
+          // eslint-disable-next-line no-console
+          console.debug(`Paste char '${char}' code=0x${mapping.code.toString(16)} mod=0x${modifier.toString(16)} shift=${!!mapping.shift} altGr=${!!mapping.altGr}`);
+        }
 
         // For modified keys (Shift/AltGr), press modifier first, then key
         // This is more compatible with Windows login screen and other sensitive inputs

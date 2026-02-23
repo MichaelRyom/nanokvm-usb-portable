@@ -63,16 +63,10 @@ const App = () => {
     if (serialState !== 'connected') return;
 
     const handleKeyDown = async (e: KeyboardEvent) => {
-      // Debug: log all key events with modifiers
-      if (e.ctrlKey || e.shiftKey || e.altKey) {
-        console.log('Key event:', { key: e.key, code: e.code, ctrl: e.ctrlKey, shift: e.shiftKey, alt: e.altKey });
-      }
-      
       // Check for Ctrl+Shift+Insert to paste to target (avoids browser's built-in Ctrl+Shift+V)
       const isPasteShortcut = e.ctrlKey && e.shiftKey && e.code === 'Insert';
-      
+
       if (isPasteShortcut) {
-        console.log('Ctrl+Shift+Insert detected, reading clipboard...');
         const target = e.target as HTMLElement;
         // Don't intercept in input fields
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
@@ -83,7 +77,6 @@ const App = () => {
         e.stopPropagation();
         try {
           const text = await navigator.clipboard.readText();
-          console.log('Clipboard text:', text ? `${text.length} chars` : 'empty');
           if (text) {
             // Show paste confirmation dialog
             setPasteState({
@@ -157,7 +150,7 @@ const App = () => {
       const isSuccess = await requestCameraPermission(resolution);
       setIsCameraGranted(isSuccess);
     } catch (err: any) {
-      console.log('failed to request media permissions: ', err);
+      console.error('failed to request media permissions: ', err);
     } finally {
       setIsLoading(false);
     }

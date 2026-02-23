@@ -35,7 +35,7 @@ export const SerialPort = ({ setErrMsg, onDisconnect }: SerialPortProps) => {
       await device.serialPort.init({ port, onDisconnect });
       setSerialState('connected');
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setSerialState('disconnected');
       setErrMsg(t('serial.failed'));
     }

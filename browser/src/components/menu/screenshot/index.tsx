@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { MenuTooltip } from '../menu-tooltip';
 import { camera } from '@/libs/media/camera';
+import { isDebug } from '@/libs/debug.ts';
 
 export const Screenshot = () => {
   const { t } = useTranslation();
@@ -225,7 +226,10 @@ export const Screenshot = () => {
       }
     } catch (err) {
       // User cancelled or error
-      console.log(err);
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug(err);
+      }
     }
   };
 

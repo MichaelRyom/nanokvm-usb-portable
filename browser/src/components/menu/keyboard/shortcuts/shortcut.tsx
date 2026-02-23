@@ -22,7 +22,7 @@ export const Shortcut = ({ shortcut, onAction }: ShortcutProps) => {
       await sendShortcut();
       onAction?.();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     } finally {
       setIsLoading(false);
     }

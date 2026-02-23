@@ -68,7 +68,7 @@ export const Resolution = () => {
     try {
       await camera.updateResolution(w, h);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       return;
     }
 

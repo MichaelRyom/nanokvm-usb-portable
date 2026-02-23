@@ -10,6 +10,7 @@
 // because we map character -> physical key using YOUR layout
 
 import { KeycodeMap } from './keymap';
+import { isDebug } from '@/libs/debug.ts';
 
 export interface KeyMapping {
   code: number;      // HID keycode
@@ -148,7 +149,11 @@ async function detectBrowserLayout(): Promise<LayoutMap> {
       // Build shifted mappings based on detected layout
       buildShiftedMappings(layoutMap);
 
-      console.log(`Detected keyboard layout with ${Object.keys(layoutMap).length} mappings`);
+      // Debug only: layout size summary
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug(`Detected keyboard layout with ${Object.keys(layoutMap).length} mappings`);
+      }
     } catch (err) {
       console.warn('Failed to detect keyboard layout:', err);
     }
@@ -182,7 +187,10 @@ export function learnFromKeyEvent(event: KeyboardEvent): void {
     altGr: altGr || undefined,
   };
 
-  console.log(`Learned: '${char}' -> HID ${hidCode.toString(16)} (shift=${shift}, altGr=${altGr})`);
+  if (isDebug()) {
+    // eslint-disable-next-line no-console
+    console.debug(`Learned: '${char}' -> HID ${hidCode.toString(16)} (shift=${shift}, altGr=${altGr})`);
+  }
 }
 
 // Get the current layout (auto-detected from browser)

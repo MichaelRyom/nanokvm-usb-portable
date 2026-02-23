@@ -42,7 +42,7 @@ export async function requestMicrophonePermission() {
     stream.getTracks().forEach((track) => track.stop());
     return true;
   } catch (err: any) {
-    console.log('failed to request media permissions: ', err);
+    console.error('failed to request media permissions: ', err);
     return !(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
   }
 }

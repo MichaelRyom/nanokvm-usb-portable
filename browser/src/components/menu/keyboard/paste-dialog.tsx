@@ -26,7 +26,7 @@ export const PasteWithDialog = () => {
         totalChars: text.length
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 

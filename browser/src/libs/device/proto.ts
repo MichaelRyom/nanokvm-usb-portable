@@ -1,3 +1,5 @@
+import { isDebug } from '@/libs/debug.ts';
+
 export enum CmdEvent {
   GET_INFO = 0x01,
   SEND_KB_GENERAL_DATA = 0x02,
@@ -39,12 +41,18 @@ export class CmdPacket {
   public decode(data: number[]): number {
     const headerIndex = this.findHead(data);
     if (headerIndex < 0) {
-      console.log('cannot find HEAD');
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug('cannot find HEAD');
+      }
       return -1;
     }
 
     if (data.length - headerIndex < 6) {
-      console.log('len error1');
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug('len error1');
+      }
       return -1;
     }
 
@@ -53,7 +61,10 @@ export class CmdPacket {
     const dataLen = data[headerIndex + 4];
 
     if (data.length < headerIndex + 3 + dataLen + 1) {
-      console.log('len error2');
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug('len error2');
+      }
       return -1;
     }
 
@@ -61,7 +72,10 @@ export class CmdPacket {
     try {
       sum = data[headerIndex + 5 + dataLen];
     } catch {
-      console.log('len error3');
+      if (isDebug()) {
+        // eslint-disable-next-line no-console
+        console.debug('len error3');
+      }
       return -1;
     }
 

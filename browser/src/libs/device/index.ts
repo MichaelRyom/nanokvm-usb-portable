@@ -1,9 +1,6 @@
 import { CmdEvent, CmdPacket, InfoPacket } from './proto.ts';
 import { SerialPort } from './serial-port.ts';
-
-function isDebugMode(): boolean {
-  return new URLSearchParams(window.location.search).has('debug');
-}
+import { isDebug } from '@/libs/debug.ts';
 
 export class Device {
   addr: number;
@@ -13,7 +10,7 @@ export class Device {
   constructor() {
     this.addr = 0x00;
     this.serialPort = new SerialPort();
-    this.debug = isDebugMode();
+    this.debug = isDebug();
   }
 
   async getInfo() {

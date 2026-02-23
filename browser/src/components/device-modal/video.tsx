@@ -52,7 +52,7 @@ export const Video = ({ setErrMsg }: VideoProps) => {
 
       setDevices(mediaDevices);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setErrMsg(t('camera.failed'));
     }
   }
@@ -76,7 +76,7 @@ export const Video = ({ setErrMsg }: VideoProps) => {
     try {
       await camera.open(videoId, resolution.width, resolution.height, device.audioId);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setErrMsg(t('camera.failed'));
     }
 

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { device } from '@/libs/device';
 import { getLayoutById, initLayoutDetection, LayoutMap } from '@/libs/keyboard/layouts.ts';
+import { isDebug } from '@/libs/debug.ts';
 import { ModifierBits } from '@/libs/keyboard/keymap.ts';
 
 // Initialize layout detection early
@@ -13,7 +14,10 @@ initLayoutDetection();
 export async function pasteText(text: string, layoutId: string = 'auto'): Promise<void> {
   const layout: LayoutMap = getLayoutById(layoutId);
   
-  console.log(`Pasting with layout: ${layoutId}, text length: ${text.length}`);
+  if (isDebug()) {
+    // eslint-disable-next-line no-console
+    console.debug(`Pasting with layout: ${layoutId}, text length: ${text.length}`);
+  }
 
   // Release all keys first to ensure clean state
   await device.sendKeyboardData([0, 0, 0, 0, 0, 0, 0, 0]);
@@ -35,7 +39,10 @@ export async function pasteText(text: string, layoutId: string = 'auto'): Promis
       modifier |= ModifierBits.RightAlt;
     }
 
-    console.log(`Char '${char}' -> code: 0x${mapping.code.toString(16)}, modifier: ${modifier}`);
+    if (isDebug()) {
+      // eslint-disable-next-line no-console
+      console.debug(`Char '${char}' -> code: 0x${mapping.code.toString(16)}, modifier: ${modifier}`);
+    }
 
     // For modified keys (Shift/AltGr), press modifier first, then key
     // This is more compatible with Windows login screen
@@ -78,7 +85,7 @@ export const Paste = () => {
       if (!text) return;
       await pasteText(text);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setIsLoading(false);
     }

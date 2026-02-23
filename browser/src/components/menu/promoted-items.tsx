@@ -120,7 +120,7 @@ export const PromotedSubMenuItem: React.FC<PromotedSubMenuItemProps> = ({ itemId
         const text = await navigator.clipboard.readText();
         if (text) await pasteText(text);
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         setIsPasting(false);
       }
@@ -165,7 +165,7 @@ export const PromotedSubMenuItem: React.FC<PromotedSubMenuItemProps> = ({ itemId
           totalChars: text.length
         });
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     };
     
