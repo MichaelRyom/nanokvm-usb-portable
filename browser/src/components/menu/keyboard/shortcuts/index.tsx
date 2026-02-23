@@ -23,6 +23,13 @@ const defaultShortcuts: ShortcutInterface[] = [
       { code: 'AltLeft', label: 'Alt' },
       { code: 'Delete', label: 'Del' }
     ]
+  },
+  {
+    keys: [
+      { code: 'ControlLeft', label: 'Ctrl' },
+      { code: 'ShiftLeft', label: 'Shift' },
+      { code: 'Insert', label: 'Ins' }
+    ]
   }
 ];
 
