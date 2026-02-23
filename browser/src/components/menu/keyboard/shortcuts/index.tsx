@@ -23,14 +23,12 @@ const defaultShortcuts: ShortcutInterface[] = [
       { code: 'AltLeft', label: 'Alt' },
       { code: 'Delete', label: 'Del' }
     ]
-  },
-  {
-    keys: [
-      { code: 'ControlLeft', label: 'Ctrl' },
-      { code: 'ShiftLeft', label: 'Shift' },
-      { code: 'Insert', label: 'Ins' }
-    ]
   }
+];
+
+// Local app shortcuts (not sent to target — for reference only)
+const appShortcuts: { keys: string; description: string }[] = [
+  { keys: 'Ctrl + Shift + Insert', description: 'Paste clipboard to target' }
 ];
 
 interface ShortcutsContentProps {
@@ -80,6 +78,19 @@ export const ShortcutsContent = ({ onAction }: ShortcutsContentProps = {}) => {
         delShortcut={delShortcut}
         setIsRecording={setIsRecording}
       />
+      {appShortcuts.length > 0 && (
+        <>
+          <Divider style={{ margin: '8px 0 4px 0' }}>
+            <span className="text-[10px] text-neutral-500">App Shortcuts</span>
+          </Divider>
+          {appShortcuts.map((s) => (
+            <div key={s.keys} className="flex items-center justify-between px-2 py-1">
+              <span className="text-xs text-neutral-400">{s.description}</span>
+              <kbd className="ml-3 whitespace-nowrap rounded bg-neutral-700 px-1.5 py-0.5 text-[10px] text-neutral-300">{s.keys}</kbd>
+            </div>
+          ))}
+        </>
+      )}
     </ScrollArea>
   );
 };

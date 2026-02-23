@@ -100,6 +100,12 @@ Press `Ctrl+C` to stop.
 > ```
 > Then unplug and replug the NanoKVM.
 
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+Shift+Insert` | Open paste dialog — sends clipboard text to the target machine |
+
 ## Project Structure
 
 ```
@@ -113,7 +119,7 @@ portable/   # Rust binary that embeds and serves the browser build
 - Add tags for credential vault items — categorize entries with custom tags
 - Add tag autocomplete — previously used tags appear as suggestions when editing
 - Add tag filter bar below search for quick filtering by tag
-- Add Ctrl+Shift+Insert paste shortcut to default shortcuts list
+- Add app shortcuts reference section to shortcuts panel (Ctrl+Shift+Insert for paste)
 - Improve vault item layout — aligned Copy/Type buttons across all field rows
 - Move Copy button before Type button for better workflow
 - Improve settings layout — left-aligned labels with right-aligned controls
