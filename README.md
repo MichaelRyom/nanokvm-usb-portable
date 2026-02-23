@@ -20,24 +20,42 @@ The browser UI has been extended with several features not present in the upstre
 
 - A **NanoKVM-USB** device connected via USB 3.0
 - A **Chromium-based browser** (Chrome, Edge, or Chromium) — required for WebSerial support
-- **Rust** toolchain (for building from source)
-- **Node.js** (for building the browser frontend)
 
-## Building
+## Building from Source
+
+### Build Dependencies
+
+- **Node.js** 20+ and **npm** — for the browser frontend
+- **Rust** toolchain — install via [rustup.rs](https://rustup.rs)
+- **mingw-w64** — for Windows cross-compilation from Linux:
+  ```bash
+  sudo apt install gcc-mingw-w64-x86-64
+  ```
+- **cargo-audit** (optional) — for security auditing of Rust crates:
+  ```bash
+  cargo install cargo-audit
+  ```
+
+### Build
+
+The included `build.sh` script handles the full build pipeline: frontend compilation, security audits, and native binaries for both Linux and Windows.
 
 ```bash
-# Build the browser frontend
-cd browser
-npm install
-npm run build
-cd ..
-
-# Build the portable binary
-cd portable
-cargo build --release
+./build.sh
 ```
 
-The binary will be at `portable/target/release/nanokvm-usb-portable`.
+This will:
+1. Build the browser frontend (`npm install` + `npm run build`)
+2. Run security audits (npm and cargo)
+3. Compile release binaries for Linux and Windows (x86_64)
+4. Place versioned output in `dist/v<version>/`
+
+Output:
+```
+dist/v1.5.1/
+  nanokvm-usb-portable-v1.5.1-linux-x86_64
+  nanokvm-usb-portable-v1.5.1-windows-x86_64.exe
+```
 
 ## Usage
 
