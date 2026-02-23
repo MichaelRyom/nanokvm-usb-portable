@@ -52,6 +52,15 @@ This will:
 
 Press `Ctrl+C` to stop.
 
+### Options
+
+| Flag | Description |
+|---|---|
+| `--no-browser` | Start server only, don't launch a browser |
+| `--browser` | Open as a normal browser tab (enables extensions) |
+| `--debug` | Enable verbose debug logging in the browser console |
+| `--help` | Show help message |
+
 > **Linux notes:**
 >
 > If you get a serial port permission error, add yourself to the `dialout` group:
@@ -78,6 +87,23 @@ Press `Ctrl+C` to stop.
 browser/    # NanoKVM-USB browser UI (modified from upstream)
 portable/   # Rust binary that embeds and serves the browser build
 ```
+
+## Changelog
+
+### v1.5.1
+- Clean up console logging — errors only in normal mode, diagnostics gated behind `--debug`
+- Centralize debug flag via shared `isDebug()` helper
+
+### v1.5.0
+- Fix Windows browser detection — resolve browser paths via `PROGRAMFILES`/`LOCALAPPDATA` environment variables instead of relying on bare command names
+- Add `--debug` CLI flag for verbose HID and serial logging in the browser console
+
+### v1.4.0
+- Expand keyboard layouts to 76 (fetched from XKB data)
+
+### v1.3.0
+- Improve Linux serial port setup checks (robust dialout group detection, brltty conflict detection)
+- Filter WebSerial port picker to CH340 devices only
 
 ## Upstream
 
