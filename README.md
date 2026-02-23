@@ -12,6 +12,7 @@ The browser UI has been extended with several features not present in the upstre
 - **Screenshot capture** — save the current video frame
 - **Paste with preview dialog** — confirm before sending clipboard text to the target
 - **Login helper** — quickly type credentials with modifier key support for Windows login screens
+- **Credential vault** — encrypted local password manager with TOTP support, import/export, and auto-lock
 - **Target keyboard layout selection** — match the keyboard layout of the remote machine
 - **Adjustable paste speed** — control typing delay for paste operations
 - **Toggleable tooltips** — show/hide menu tooltips
@@ -52,9 +53,9 @@ This will:
 
 Output:
 ```
-dist/v1.5.1/
-  nanokvm-usb-portable-v1.5.1-linux-x86_64
-  nanokvm-usb-portable-v1.5.1-windows-x86_64.exe
+dist/v1.6.0/
+  nanokvm-usb-portable-v1.6.0-linux-x86_64
+  nanokvm-usb-portable-v1.6.0-windows-x86_64.exe
 ```
 
 ## Usage
@@ -107,6 +108,14 @@ portable/   # Rust binary that embeds and serves the browser build
 ```
 
 ## Changelog
+
+### v1.6.0
+- Add built-in credential vault — AES-GCM encrypted, PBKDF2-protected local password store
+- Add TOTP (2FA) support with live countdown and type-to-target
+- Add vault import/export for moving credentials between devices
+- Add configurable auto-lock timeout (up to 24 hours)
+- Fix keyboard capture intercepting input fields in overlay modals
+- Fix menu going off-screen when exiting fullscreen
 
 ### v1.5.1
 - Clean up console logging — errors only in normal mode, diagnostics gated behind `--debug`
