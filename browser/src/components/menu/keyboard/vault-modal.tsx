@@ -106,6 +106,7 @@ interface CredentialFormData {
   totpSecret: string;
   notes: string;
   tags: string[];
+  allLoginFields: { username: boolean; password: boolean; totp: boolean };
 }
 
 function CredentialForm({
@@ -127,6 +128,11 @@ function CredentialForm({
     totpSecret: initial?.totpSecret ?? '',
     notes: initial?.notes ?? '',
     tags: initial?.tags ?? [],
+    allLoginFields: {
+      username: initial?.allLoginFields?.username ?? true,
+      password: initial?.allLoginFields?.password ?? true,
+      totp: initial?.allLoginFields?.totp ?? true,
+    },
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -187,6 +193,38 @@ function CredentialForm({
         style={{ width: '100%' }}
         options={allTags.map((tag) => ({ label: tag, value: tag }))}
       />
+      {/* All + Login field selection */}
+      {(form.username || form.password || form.totpSecret) && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded border border-neutral-600/50 bg-neutral-800/30 px-2 py-1.5">
+          <span className="text-xs text-neutral-400">
+            {t('keyboard.vault.allLoginIncludes', 'All + Login includes:')}
+          </span>
+          {form.username && (
+            <Checkbox
+              checked={form.allLoginFields.username}
+              onChange={(e) => setForm((f) => ({ ...f, allLoginFields: { ...f.allLoginFields, username: e.target.checked } }))}
+            >
+              <span className="text-xs text-neutral-300">{t('keyboard.vault.username', 'Username')}</span>
+            </Checkbox>
+          )}
+          {form.password && (
+            <Checkbox
+              checked={form.allLoginFields.password}
+              onChange={(e) => setForm((f) => ({ ...f, allLoginFields: { ...f.allLoginFields, password: e.target.checked } }))}
+            >
+              <span className="text-xs text-neutral-300">{t('keyboard.vault.password', 'Password')}</span>
+            </Checkbox>
+          )}
+          {form.totpSecret && (
+            <Checkbox
+              checked={form.allLoginFields.totp}
+              onChange={(e) => setForm((f) => ({ ...f, allLoginFields: { ...f.allLoginFields, totp: e.target.checked } }))}
+            >
+              <span className="text-xs text-neutral-300">TOTP</span>
+            </Checkbox>
+          )}
+        </div>
+      )}
       <div className="flex justify-end space-x-2">
         <Button size="small" onClick={onCancel} icon={<XIcon size={14} />}>
           {t('keyboard.vault.cancel', 'Cancel')}
@@ -214,6 +252,7 @@ function CredentialItem({
   onToggleFavorite,
   onTagClick,
   hideTOTP,
+  onRequestClose,
 }: {
   credential: Credential;
   onEdit: () => void;
@@ -221,60 +260,74 @@ function CredentialItem({
   onToggleFavorite: () => void;
   onTagClick: (tag: string) => void;
   hideTOTP: boolean;
+  onRequestClose?: () => void;
 }) {
   const { t } = useTranslation();
   const [isSending, setIsSending] = useState(false);
   const totpCodeRef = useRef('------');
 
-  const handleTypeUsername = async () => {
+  const handleTypeUsername = async (e?: React.MouseEvent) => {
     if (isSending) return;
     setIsSending(true);
     try {
       await typeText(credential.username);
+      if (e?.ctrlKey) await pressKey('Enter');
     } finally {
       setIsSending(false);
+      onRequestClose?.();
     }
   };
 
-  const handleTypePassword = async () => {
+  const handleTypePassword = async (e?: React.MouseEvent) => {
     if (isSending) return;
     setIsSending(true);
     try {
       await typeText(credential.password);
+      if (e?.ctrlKey) await pressKey('Enter');
     } finally {
       setIsSending(false);
+      onRequestClose?.();
     }
   };
 
-  const handleTypeTOTP = async () => {
+  const handleTypeTOTP = async (e?: React.MouseEvent) => {
     const code = totpCodeRef.current;
     if (isSending || !code || code === 'ERROR' || code === '------') return;
     setIsSending(true);
     try {
       await typeText(code);
+      if (e?.ctrlKey) await pressKey('Enter');
     } finally {
       setIsSending(false);
+      onRequestClose?.();
     }
   };
 
   const handleTypeAll = async () => {
     if (isSending) return;
     setIsSending(true);
+    const fields = credential.allLoginFields;
+    const includeUser = credential.username && (fields?.username ?? true);
+    const includePass = credential.password && (fields?.password ?? true);
+    const includeTotp = credential.totpSecret && (fields?.totp ?? true);
     try {
-      if (credential.username) {
+      if (includeUser) {
         await typeText(credential.username);
-        await pressKey('Tab');
-        await new Promise((r) => setTimeout(r, 100));
+        if (includePass || includeTotp) {
+          await pressKey('Tab');
+          await new Promise((r) => setTimeout(r, 100));
+        }
       }
-      if (credential.password) {
+      if (includePass) {
         await typeText(credential.password);
       }
-      // If TOTP is configured, type it after a tab
-      if (credential.totpSecret) {
-        await pressKey('Tab');
-        await new Promise((r) => setTimeout(r, 100));
+      if (includeTotp) {
+        if (includeUser || includePass) {
+          await pressKey('Tab');
+          await new Promise((r) => setTimeout(r, 100));
+        }
         const code = await generateTOTP(
-          credential.totpSecret,
+          credential.totpSecret!,
           credential.totpPeriod ?? 30,
           credential.totpDigits ?? 6
         );
@@ -283,6 +336,7 @@ function CredentialItem({
       await pressKey('Enter');
     } finally {
       setIsSending(false);
+      onRequestClose?.();
     }
   };
 
@@ -349,7 +403,7 @@ function CredentialItem({
           <button type="button" onClick={() => copyToClipboard(credential.username)} className="text-neutral-400 hover:text-neutral-200" title="Copy">
             <CopyIcon size={12} />
           </button>
-          <Button size="small" onClick={handleTypeUsername} disabled={isSending}>
+          <Button size="small" onClick={(e) => handleTypeUsername(e)} disabled={isSending}>
             {t('keyboard.vault.typeUser', 'Type')}
           </Button>
           {lastRow === 'username' && allLoginBtn}
@@ -363,7 +417,7 @@ function CredentialItem({
           <button type="button" onClick={() => copyToClipboard(credential.password)} className="text-neutral-400 hover:text-neutral-200" title="Copy">
             <CopyIcon size={12} />
           </button>
-          <Button size="small" onClick={handleTypePassword} disabled={isSending}>
+          <Button size="small" onClick={(e) => handleTypePassword(e)} disabled={isSending}>
             {t('keyboard.vault.typePass', 'Type')}
           </Button>
           {lastRow === 'password' && allLoginBtn}
@@ -385,7 +439,7 @@ function CredentialItem({
           <button type="button" onClick={() => copyToClipboard(totpCodeRef.current)} className="text-neutral-400 hover:text-neutral-200" title="Copy">
             <CopyIcon size={12} />
           </button>
-          <Button size="small" onClick={handleTypeTOTP} disabled={isSending}>
+          <Button size="small" onClick={(e) => handleTypeTOTP(e)} disabled={isSending}>
             {t('keyboard.vault.typeTotp', 'Type')}
           </Button>
           {lastRow === 'totp' && allLoginBtn}
@@ -421,6 +475,7 @@ export const VaultModal = ({ open, onClose }: VaultModalProps) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [autoLockMinutes, setAutoLockMinutes] = useState(vault.getAutoLockMinutes());
   const [hideTOTP, setHideTOTP] = useState(vault.getHideTOTP());
+  const [closeAfterType, setCloseAfterType] = useState(vault.getCloseAfterType());
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [changePwMode, setChangePwMode] = useState(false);
@@ -531,6 +586,7 @@ export const VaultModal = ({ open, onClose }: VaultModalProps) => {
       username: data.username,
       password: data.password,
       totpSecret: data.totpSecret || undefined,
+      allLoginFields: data.allLoginFields,
       notes: data.notes || undefined,
       tags: data.tags.length > 0 ? data.tags : undefined,
     });
@@ -544,6 +600,7 @@ export const VaultModal = ({ open, onClose }: VaultModalProps) => {
       username: data.username,
       password: data.password,
       totpSecret: data.totpSecret || undefined,
+      allLoginFields: data.allLoginFields,
       notes: data.notes || undefined,
       tags: data.tags.length > 0 ? data.tags : undefined,
     });
@@ -564,6 +621,11 @@ export const VaultModal = ({ open, onClose }: VaultModalProps) => {
   const handleHideTOTPChange = (value: boolean) => {
     vault.setHideTOTP(value);
     setHideTOTP(value);
+  };
+
+  const handleCloseAfterTypeChange = (value: boolean) => {
+    vault.setCloseAfterType(value);
+    setCloseAfterType(value);
   };
 
   const handleToggleFavorite = async (id: string) => {
@@ -849,6 +911,15 @@ export const VaultModal = ({ open, onClose }: VaultModalProps) => {
               onChange={(e) => handleHideTOTPChange(e.target.checked)}
             />
           </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-neutral-300">
+              {t('keyboard.vault.closeAfterType', 'Close vault after typing')}
+            </span>
+            <Checkbox
+              checked={closeAfterType}
+              onChange={(e) => handleCloseAfterTypeChange(e.target.checked)}
+            />
+          </div>
           {!changePwMode ? (
             <Button size="small" block onClick={() => setChangePwMode(true)}>
               {t('keyboard.vault.changePassword', 'Change Master Password')}
@@ -956,6 +1027,7 @@ export const VaultModal = ({ open, onClose }: VaultModalProps) => {
               onToggleFavorite={() => handleToggleFavorite(cred.id)}
               onTagClick={(tag) => setSearchQuery(tag)}
               hideTOTP={hideTOTP}
+              onRequestClose={closeAfterType ? handleClose : undefined}
             />
           )
         )}

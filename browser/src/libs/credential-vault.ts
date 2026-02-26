@@ -3,6 +3,7 @@ import { generateSalt, deriveKey, encrypt, decrypt } from '@/libs/crypto';
 const VAULT_STORAGE_KEY = 'nanokvm-usb-credential-vault';
 const AUTO_LOCK_KEY = 'nanokvm-usb-vault-auto-lock';
 const HIDE_TOTP_KEY = 'nanokvm-usb-vault-hide-totp';
+const CLOSE_AFTER_TYPE_KEY = 'nanokvm-usb-vault-close-after-type';
 const DEFAULT_AUTO_LOCK_MINUTES = 5;
 
 // --- Types ---
@@ -15,6 +16,7 @@ export interface Credential {
   totpSecret?: string;  // base32 TOTP secret
   totpPeriod?: number;   // default 30
   totpDigits?: number;   // default 6
+  allLoginFields?: { username?: boolean; password?: boolean; totp?: boolean };
   notes?: string;
   tags?: string[];
   favorite?: boolean;
@@ -66,6 +68,14 @@ export function getHideTOTP(): boolean {
 
 export function setHideTOTP(hide: boolean): void {
   localStorage.setItem(HIDE_TOTP_KEY, hide ? 'true' : 'false');
+}
+
+export function getCloseAfterType(): boolean {
+  return localStorage.getItem(CLOSE_AFTER_TYPE_KEY) === 'true'; // default false
+}
+
+export function setCloseAfterType(close: boolean): void {
+  localStorage.setItem(CLOSE_AFTER_TYPE_KEY, close ? 'true' : 'false');
 }
 
 function checkAutoLock(): boolean {

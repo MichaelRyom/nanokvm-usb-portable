@@ -54,9 +54,9 @@ This will:
 
 Output:
 ```
-dist/v1.7.0/
-  nanokvm-usb-portable-v1.7.0-linux-x86_64
-  nanokvm-usb-portable-v1.7.0-windows-x86_64.exe
+dist/v1.8.0/
+  nanokvm-usb-portable-v1.8.0-linux-x86_64
+  nanokvm-usb-portable-v1.8.0-windows-x86_64.exe
 ```
 
 ## Usage
@@ -106,6 +106,7 @@ Press `Ctrl+C` to stop.
 | Shortcut | Action |
 |---|---|
 | `Ctrl+Shift+Insert` | Open paste dialog — sends clipboard text to the target machine |
+| `Ctrl+Click` on vault Type button | Type the field value and press Enter |
 
 ## Project Structure
 
@@ -115,6 +116,11 @@ portable/   # Rust binary that embeds and serves the browser build
 ```
 
 ## Changelog
+
+### v1.8.0
+- Add auto-close vault setting — optionally close the vault modal after any Type or All+Login action
+- Add per-item "All + Login" field selection — choose which fields (username, password, TOTP) are included per credential
+- Add Ctrl+Click on Type buttons — types the field value and presses Enter (useful for locked Windows screens)
 
 ### v1.7.0
 - Add tags for credential vault items — categorize entries with custom tags
